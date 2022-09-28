@@ -15,7 +15,7 @@ jobs:
           # Optional
           git-clone-by: ssh
           target-branch: main
-          target-directory: /bosch
+          target-directory: /home/ghactionuser/bosch
           post-command: |
             cd /bosch/bosch &&
             yarn install &&
