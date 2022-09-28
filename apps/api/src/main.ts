@@ -3,7 +3,7 @@ import { Message } from '@bosch/api-interfaces';
 
 const app = express();
 
-const greeting: Message = { message: 'CD Demo' };
+const greeting: Message = { message: 'Welcome to api!' };
 
 app.get('/api', (req, res) => {
   res.send(greeting);
