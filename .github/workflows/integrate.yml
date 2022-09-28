@@ -17,7 +17,6 @@ jobs:
           target-branch: main
           target-directory: /home/ghactionuser/bosch
           post-command: |
-            cd /home/ghactionuser/bosch/bosch &&
             yarn install &&
             yarn build api &&
             pm2 restart /home/ghactionuser/bosch/dist/apps/api/main.js
