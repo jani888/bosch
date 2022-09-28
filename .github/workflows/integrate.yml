@@ -1,0 +1,23 @@
+name: Deployment of current GitHub repo on a server through SSH
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: Rxinui/ssh-deploy-repo-action@v1.1
+        with:
+          # Required
+          ssh-user: ghactionuser
+          ssh-password: ${{ secrets.OVH_HOSTING_PASSWORD }}
+          ssh-domain: ${{ secrets.OVH_HOSTING_DOMAIN }}
+          # Optional
+          git-clone-by: ssh
+          target-branch: main
+          target-directory: /bosch
+          post-command: |
+            cd /bosch/bosch &&
+            yarn install &&
+            yarn build api &&
+            pm2 restart /home/ghactionuser/bosch/dist/apps/api/main.js
