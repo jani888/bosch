@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Message } from '@bosch/api-interfaces';
+import {
+  Button,
+  Container,
+  createTheme,
+  CssBaseline,
+  TextField,
+  ThemeProvider,
+} from '@mui/material';
+import { mainTheme } from '../theme/mainTheme';
 
 export const App = () => {
   const [m, setMessage] = useState<Message>({ message: '' });
@@ -11,17 +20,13 @@ export const App = () => {
   }, []);
 
   return (
-    <>
-      <div style={{ textAlign: 'center' }}>
-        <h1>Welcome to bosch!</h1>
-        <img
-          width="450"
-          src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png"
-          alt="Nx - Smart, Fast and Extensible Build System"
-        />
-      </div>
-      <div>{m.message}</div>
-    </>
+    <ThemeProvider theme={createTheme(mainTheme)}>
+      <CssBaseline />
+      <Container>
+        <TextField value={m.message} />
+        <Button>Teszt</Button>
+      </Container>
+    </ThemeProvider>
   );
 };
 
