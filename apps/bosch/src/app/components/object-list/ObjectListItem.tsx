@@ -1,14 +1,22 @@
-import { TrackedObject } from '../View3D';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import React from 'react';
 import PlaceIcon from '@mui/icons-material/Place';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import { ObjectTypeIcon } from './ObjectTypeIcon';
+import { TrackedObject } from '../../simulation';
 
-export function ObjectListItem(props: { trackedObject: TrackedObject }) {
+export function ObjectListItem(props: {
+  trackedObject: TrackedObject;
+  selected: boolean;
+  onSelect: (uuid: string) => void;
+}) {
   return (
-    <Card variant="outlined">
-      <CardContent sx={{ py: 1, px: 2 }}>
+    <Card
+      variant="outlined"
+      sx={{ borderColor: props.selected ? 'primary.main' : '' }}
+      onClick={() => props.onSelect(props.trackedObject.uuid)}
+    >
+      <Box component="div" sx={{ py: 1, px: 2 }}>
         <Stack direction="row">
           <Stack direction="column">
             <Typography
@@ -38,7 +46,7 @@ export function ObjectListItem(props: { trackedObject: TrackedObject }) {
           </Stack>
           <ObjectTypeIcon type={props.trackedObject.type} />
         </Stack>
-      </CardContent>
+      </Box>
     </Card>
   );
 }
