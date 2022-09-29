@@ -6,8 +6,9 @@ export function Controls() {
     <>
       <PerspectiveCamera position={[2, 2, 2]} makeDefault />
       <OrbitControls
+        enableDamping={true}
         maxPolarAngle={(80 / 180) * Math.PI}
-        minDistance={10}
+        minDistance={5}
         maxDistance={80}
       />
     </>
