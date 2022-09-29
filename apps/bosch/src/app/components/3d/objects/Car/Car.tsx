@@ -71,7 +71,7 @@ export const Car = (props: CarProps) => {
     <>
       {model && (
         <group
-          position={[props.x, props.y, 0]}
+          position={[props.x, 0, props.y]}
           rotation={[0, (props.heading * Math.PI) / 180, 0]}
         >
           <primitive object={model} />

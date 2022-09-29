@@ -5,11 +5,11 @@ import { BasePlane } from './BasePlane';
 import { Lights } from './Lights';
 import { Controls } from './Controls';
 import { Stack } from '@mui/material';
-import { Vector3 } from 'three';
+import { ACESFilmicToneMapping, Fog, sRGBEncoding, Vector3 } from 'three';
 import { ObjectList } from './object-list/ObjectList';
-import { ACESFilmicToneMapping, Fog, sRGBEncoding } from 'three';
 import { Environment } from '@react-three/drei';
 import { Car } from './3d/objects/Car/Car';
+import { Pedestrian, PedestrianMovementState } from './3d/objects/Pedestrian';
 
 export enum ObjectType {
   Unknown = 'Unknown',
@@ -153,7 +153,7 @@ function step(dt: number) {
   }
 }
 
-window.requestAnimationFrame(simulate);
+//window.requestAnimationFrame(simulate);
 
 function useTrackedObjectList() {
   const [trackedObjectList, setTrackedObjectList] = useState<TrackedObject[]>(
@@ -169,39 +169,50 @@ function useTrackedObjectList() {
 }
 
 export function View3D() {
-  const trackedObjectList = useTrackedObjectList();
+  //const trackedObjectList = useTrackedObjectList();
+  const trackedObjectList: any[] = [];
 
   return (
     <Stack sx={{ height: '100%' }} direction="row">
       <Canvas
         style={{ height: '100%', width: '100%' }}
         shadows={true}
-        gl={{ antialias: true ,
-        outputEncoding: sRGBEncoding,
-        toneMapping: ACESFilmicToneMapping,
-        toneMappingExposure: 0.85,
-        pixelRatio: window.devicePixelRatio,
-      }}
-    >
-      <scene fog={new Fog(0x333333, 10, 15)}>
-        <Environment
-          background={true} // Whether to affect scene.background
-          files={'assets/venice_sunset_1k.hdr'}
-          path={'/'}
-        />
+        gl={{
+          antialias: true,
+          outputEncoding: sRGBEncoding,
+          toneMapping: ACESFilmicToneMapping,
+          toneMappingExposure: 0.85,
+          pixelRatio: window.devicePixelRatio,
+        }}
+      >
+        <scene fog={new Fog(0x333333, 10, 15)}>
+          <Environment
+            background={true} // Whether to affect scene.background
+            files={'assets/venice_sunset_1k.hdr'}
+            path={'/'}
+          />
 
-        <Lights />
+          <Lights />
 
-        {trackedObjectList.map((trackedObject) => (
-          <TrackedObjectItem key={trackedObject.uuid} object={trackedObject} />
-        ))}
-        <UnknownObject x={5} y={0} />
-        <Car heading={45} x={0} y={0} />
+          {trackedObjectList.map((trackedObject) => (
+            <TrackedObjectItem
+              key={trackedObject.uuid}
+              object={trackedObject}
+            />
+          ))}
+          <UnknownObject x={5} y={0} />
+          <Car heading={45} x={5} y={5} />
+          <Pedestrian
+            x={0}
+            y={-5}
+            heading={45}
+            movementState={PedestrianMovementState.Walking}
+          />
 
-        <BasePlane />
-        <Controls />
-      </scene>
-    </Canvas>
+          <BasePlane />
+          <Controls />
+        </scene>
+      </Canvas>
       <ObjectList data={trackedObjectList} />
     </Stack>
   );
