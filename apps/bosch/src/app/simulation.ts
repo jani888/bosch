@@ -6,16 +6,38 @@ import {
 
 export let trackedObjects: TrackedObject[] = [];
 
-export function step(dt: number) {
+export interface RawMeasurement {
+  consumed: boolean;
+  timestamp: number;
+  a: number;
+  b: number;
+}
+
+const data: RawMeasurement[] = [{ a: 1, b: 2, consumed: false, timestamp: 0 }];
+
+function normalizeMeasurement(item: RawMeasurement): NormalizedMeasurement {
+  return {
+    x: Math.random() * 10,
+    y: Math.random() * 10,
+    type: ObjectType.Pedestrian,
+  };
+}
+
+export function step(
+  dt: number,
+  timestamp: number,
+  data: RawMeasurement[],
+  invalidate: (timestamp: number[]) => void
+) {
   updatePredictions(dt);
-  if (Math.random() < 0.3) {
-    const measurement: NormalizedMeasurement = {
-      x: Math.random() * 10,
-      y: Math.random() * 10,
-      type: ObjectType.Pedestrian,
-    };
-    updateTracking(measurement, dt);
-  }
+  const pendingMeasurements = data.filter(
+    (item) => item.timestamp <= timestamp && !item.consumed
+  );
+  const normalizedMeasurements = pendingMeasurements.map(normalizeMeasurement);
+  normalizedMeasurements.forEach((measurement) =>
+    updateTracking(measurement, dt)
+  );
+  invalidate(pendingMeasurements.map((item) => item.timestamp));
 }
 
 function updateTracking(measurement: NormalizedMeasurement, dt: number) {
