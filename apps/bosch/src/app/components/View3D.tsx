@@ -52,7 +52,9 @@ export function View3D({
         pixelRatio: window.devicePixelRatio,
       }}
     >
-      <scene fog={new Fog(0x333333, 10, 15)}>
+      <scene>
+        <fog color={0x333333} near={80} far={100} />
+
         <Environment
           background={true} // Whether to affect scene.background
           files={'assets/venice_sunset_1k.hdr'}
@@ -71,11 +73,11 @@ export function View3D({
         <UnknownObject x={5} y={0} />
         <Pedestrian
           x={0}
-          y={10}
+          y={0}
           heading={90}
+          color={'gray'}
           movementState={PedestrianMovementState.Idle}
         />
-        <Cyclist x={0} y={0} heading={45} color={'red'} opacity={0.5} />
 
         <BasePlane />
         <Controls />

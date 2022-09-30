@@ -19,8 +19,6 @@ export const Car = (props: CarProps) => {
   const [model, setModel] = useState<Object3D>();
   const [wheels, setWheels] = useState<Object3D[]>([]);
 
-  const shadow = new TextureLoader().load('assets/ferrari_ao.png');
-
   const loader = useMemo(() => {
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('assets/draco/gltf/');
