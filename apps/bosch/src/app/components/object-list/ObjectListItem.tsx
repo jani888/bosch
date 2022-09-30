@@ -20,8 +20,8 @@ import React, { useState } from 'react';
 import PlaceIcon from '@mui/icons-material/Place';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import { ObjectTypeIcon } from './ObjectTypeIcon';
-import { TrackedObject } from '../../simulation';
 import DatasetIcon from '@mui/icons-material/Dataset';
+import { TrackedObject } from '../../TrackedObject';
 export function ObjectListItem(props: {
   trackedObject: TrackedObject;
   selected: boolean;

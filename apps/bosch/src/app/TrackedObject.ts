@@ -4,67 +4,6 @@ import {
   ObjectType,
 } from './components/View3D';
 
-export let trackedObjects: TrackedObject[] = [];
-
-export interface RawMeasurement {
-  consumed: boolean;
-  timestamp: number;
-  a: number;
-  b: number;
-}
-
-const data: RawMeasurement[] = [{ a: 1, b: 2, consumed: false, timestamp: 0 }];
-
-function normalizeMeasurement(item: RawMeasurement): NormalizedMeasurement {
-  return {
-    x: Math.random() * 10,
-    y: Math.random() * 10,
-    type: ObjectType.Pedestrian,
-  };
-}
-
-export function step(
-  dt: number,
-  timestamp: number,
-  data: RawMeasurement[],
-  invalidate: (timestamp: number[]) => void
-) {
-  updatePredictions(dt);
-  const pendingMeasurements = data.filter(
-    (item) => item.timestamp <= timestamp && !item.consumed
-  );
-  const normalizedMeasurements = pendingMeasurements.map(normalizeMeasurement);
-  normalizedMeasurements.forEach((measurement) =>
-    updateTracking(measurement, dt)
-  );
-  invalidate(pendingMeasurements.map((item) => item.timestamp));
-}
-
-function updateTracking(measurement: NormalizedMeasurement, dt: number) {
-  const bestMatch = trackedObjects
-    .map((trackedObject) => ({
-      trackedObject,
-      similarity: trackedObject.compare(measurement),
-    }))
-    .sort((a, b) => b.similarity - a.similarity)[0];
-  if (bestMatch?.similarity > 0.5) {
-    bestMatch.trackedObject.addMeasurement(dt, measurement);
-  } else {
-    const trackedObject = new TrackedObject();
-    trackedObject.addMeasurement(0, measurement);
-    trackedObjects.push(trackedObject);
-  }
-}
-
-function updatePredictions(dt: number) {
-  trackedObjects.forEach((trackedObject) => {
-    trackedObject.predict(dt);
-  });
-  trackedObjects = trackedObjects.filter(
-    (trackedObject) => trackedObject.ttl > 0
-  );
-}
-
 export class TrackedObject {
   public ttl = 100;
   public history: HistoryItem[] = [];
@@ -74,6 +13,7 @@ export class TrackedObject {
   public y = 0;
   public type: ObjectType = ObjectType.Unknown;
   public prediction = { x: 0, y: 0 };
+
   /**
    * Returns the similarity score with a measurement. (0-1)
    */

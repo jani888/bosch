@@ -6,10 +6,10 @@ import { Lights } from './Lights';
 import { Controls } from './Controls';
 import { ACESFilmicToneMapping, Fog, sRGBEncoding, Vector3 } from 'three';
 import { Environment } from '@react-three/drei';
-import { TrackedObject } from '../simulation';
 import { Pedestrian, PedestrianMovementState } from './3d/objects/Pedestrian';
 import { Cyclist } from './3d/objects/Cyclist';
 import { Car } from './3d/objects/Car/Car';
+import { TrackedObject } from '../TrackedObject';
 
 export enum ObjectType {
   Unknown = 'Unknown',

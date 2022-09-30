@@ -1,7 +1,7 @@
 import { Divider, Stack, Typography } from '@mui/material';
 import React from 'react';
 import { ObjectListItem } from './ObjectListItem';
-import { TrackedObject } from '../../simulation';
+import { TrackedObject } from '../../TrackedObject';
 
 export function ObjectList({
   data,
