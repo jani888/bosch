@@ -13,6 +13,7 @@ import { TrackedObject } from '../TrackedObject';
 import { FireTruck } from '@mui/icons-material';
 import { Truck } from './3d/objects/Truck';
 import { MotorBike } from './3d/objects/MotorBike';
+import { TruckOrCar } from './3d/objects/TruckOrCar';
 
 export enum ObjectType {
   Unknown = 'Unknown',
@@ -68,7 +69,9 @@ export function View3D({
 
         <Lights />
 
-        <Cyclist x={0} y={0} heading={0} />
+        <Truck x={0} y={6} heading={0} />
+        <TruckOrCar x={0} y={0} heading={0} />
+        <Car x={0} y={-6} heading={0} />
 
         {data.map((trackedObject) => (
           <TrackedObjectItem
