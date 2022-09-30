@@ -19,4 +19,5 @@ jobs:
           post-command: |
             yarn install --frozen-lockfile &&
             yarn build api &&
+            cp /home/ghactionuser/.env /home/ghactionuser/bosch/dist/api &&
             pm2 restart /home/ghactionuser/bosch/dist/apps/api/main.js
