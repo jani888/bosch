@@ -3,7 +3,14 @@ import {
   bindTrigger,
   usePopupState,
 } from 'material-ui-popup-state/hooks';
-import { Button, IconButton, Menu, MenuItem, Stack } from '@mui/material';
+import {
+  Button,
+  IconButton,
+  LinearProgress,
+  Menu,
+  MenuItem,
+  Stack,
+} from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import React from 'react';
@@ -13,15 +20,30 @@ export function PlaybackControl({
   onTogglePlayback,
   speed,
   onSpeedChange,
+  length,
+  current,
+  buffer,
 }: {
   speed: number;
   isPlaying: boolean;
   onTogglePlayback: () => void;
   onSpeedChange: (speed: number) => void;
+  length: number;
+  current: number;
+  buffer: number;
 }) {
   const popupState = usePopupState({ variant: 'popover', popupId: 'demoMenu' });
   return (
-    <Stack direction="row" p={1} sx={{ backgroundColor: 'info.light' }}>
+    <Stack
+      direction="row"
+      p={1}
+      sx={{
+        alignItems: 'center',
+        backgroundColor: 'grey.200',
+        borderTop: '1px solid',
+        borderColor: 'grey.500',
+      }}
+    >
       <Button
         size="small"
         variant="text"
@@ -56,9 +78,15 @@ export function PlaybackControl({
           3x
         </MenuItem>
       </Menu>
-      <IconButton color="primary" onClick={onTogglePlayback}>
+      <IconButton sx={{ mr: 2 }} color="primary" onClick={onTogglePlayback}>
         {!isPlaying ? <PlayArrowIcon /> : <PauseIcon />}
       </IconButton>
+      <LinearProgress
+        sx={{ width: '100%' }}
+        value={(current / length) * 100}
+        valueBuffer={(buffer / length) * 100}
+        variant="buffer"
+      />
     </Stack>
   );
 }
