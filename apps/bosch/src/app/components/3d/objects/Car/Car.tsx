@@ -12,9 +12,11 @@ interface CarProps {
   heading: number;
   leftIndicator?: boolean;
   rightIndicator?: boolean;
+  color?: string;
+  opacity?: number;
 }
 
-export const Car = (props: CarProps) => {
+export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
   const { isPlaying, speed } = usePlayback();
   const [model, setModel] = useState<Object3D>();
   const [wheels, setWheels] = useState<Object3D[]>([]);
@@ -35,7 +37,7 @@ export const Car = (props: CarProps) => {
         console.error('No car model found');
         return;
       }
-      setMaterials(carModel);
+      setMaterials(carModel, color, opacity);
 
       const wheelList = [
         carModel.getObjectByName('wheel_fl'),
@@ -60,7 +62,7 @@ export const Car = (props: CarProps) => {
       {model && (
         <group
           position={[props.x, 0, props.y]}
-          rotation={[0, (props.heading * Math.PI) / 180, 0]}
+          rotation={[0, ((props.heading + 90) * Math.PI) / 180, 0]}
         >
           <primitive object={model} />
         </group>
