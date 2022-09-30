@@ -15,6 +15,7 @@ interface CarProps {
   rightIndicator?: boolean;
   color?: string;
   opacity?: number;
+  noSensor?: boolean;
 }
 
 export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
@@ -106,14 +107,12 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
             </group>
           </group>
 
-          {sensors.map((sensor) => (
-            <primitive object={sensor.camera} />
-          ))}
+          {!props.noSensor &&
+            sensors.map((sensor) => <primitive object={sensor.camera} />)}
         </group>
       )}
-      {sensors.map((sensor, index) => (
-        <primitive object={sensor.helper} />
-      ))}
+      {!props.noSensor &&
+        sensors.map((sensor, index) => <primitive object={sensor.helper} />)}
     </>
   );
 };

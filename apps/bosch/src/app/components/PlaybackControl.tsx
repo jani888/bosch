@@ -44,6 +44,7 @@ export function PlaybackControl({
         borderColor: 'grey.500',
       }}
     >
+      {current.toFixed(0)}
       <Button
         size="small"
         variant="text"
@@ -53,6 +54,38 @@ export function PlaybackControl({
         {speed}x
       </Button>
       <Menu {...bindMenu(popupState)}>
+        <MenuItem
+          onClick={() => {
+            popupState.close();
+            onSpeedChange(0.001);
+          }}
+        >
+          0.001x
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            popupState.close();
+            onSpeedChange(0.01);
+          }}
+        >
+          0.01x
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            popupState.close();
+            onSpeedChange(0.1);
+          }}
+        >
+          0.1x
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            popupState.close();
+            onSpeedChange(0.5);
+          }}
+        >
+          0.5x
+        </MenuItem>
         <MenuItem
           onClick={() => {
             popupState.close();

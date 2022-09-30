@@ -12,6 +12,7 @@ import { Car } from './3d/objects/Car/Car';
 import { TrackedObject } from '../TrackedObject';
 import { FireTruck } from '@mui/icons-material';
 import { Truck } from './3d/objects/Truck';
+import { NormalizedObjectData, RawObjectType } from '@bosch/api-interfaces';
 import { MotorBike } from './3d/objects/MotorBike';
 import { TruckOrCar } from './3d/objects/TruckOrCar';
 
@@ -22,28 +23,22 @@ export enum ObjectType {
   Car = 'Car',
 }
 
-export interface NormalizedMeasurement {
-  x: number;
-  y: number;
-  type?: ObjectType;
-}
-
-export interface HistoryItem {
+export interface HistoryItem extends NormalizedObjectData {
   timestamp: number;
-  x: number;
-  y: number;
-  objectType?: ObjectType;
-  confidence?: number;
+  actualTimestamp: number;
   itemType: 'measurement' | 'prediction';
 }
 
 export function View3D({
   data,
   selected,
+  onSelect,
 }: {
   data: TrackedObject[];
   selected: string;
+  onSelect(id: string): void;
 }): ReactElement {
+  const selectedObject = data.find((o) => o.uuid === selected);
   return (
     <Canvas
       style={{ height: '100%', width: '100%' }}
@@ -71,13 +66,12 @@ export function View3D({
 
         <Car x={0} y={0} heading={0} />
 
-        <UnknownObject x={5} y={0} />
-
         <group scale={[1, 1, -1]}>
           <UnknownObject x={0} y={5} color={'red'} />
 
           {data.map((trackedObject) => (
             <TrackedObjectItem
+              onClick={() => onSelect(trackedObject.uuid)}
               selected={trackedObject.uuid === selected}
               key={trackedObject.uuid}
               object={trackedObject}
@@ -86,7 +80,7 @@ export function View3D({
         </group>
 
         <BasePlane />
-        <Controls />
+        <Controls target={selectedObject} />
       </scene>
     </Canvas>
   );
@@ -116,12 +110,13 @@ function History3D({
 function TrackedObjectItem({
   object,
   selected,
+  onClick,
 }: {
   object: TrackedObject;
   selected: boolean;
+  onClick?: () => void;
 }) {
-  console.log(selected);
-  if (object.type === ObjectType.Cyclist) {
+  if (object.type === RawObjectType.BICYCLE) {
     return (
       <>
         {selected && (
@@ -131,15 +126,33 @@ function TrackedObjectItem({
           />
         )}
         <Cyclist
-          x={object.x}
-          y={object.y}
+          x={object.prediction.x}
+          y={object.prediction.y}
           heading={360}
           color={selected ? 'blue' : 'grey'}
         />
       </>
     );
   }
-  if (object.type === ObjectType.Pedestrian) {
+  if (object.type === RawObjectType.CAR) {
+    return (
+      <>
+        {selected && (
+          <History3D
+            component={<UnknownObject x={0} y={0} color="blue" />}
+            history={object.history}
+          />
+        )}
+        <UnknownObject
+          onClick={onClick}
+          x={object.prediction.x}
+          y={object.prediction.y}
+          color={selected ? 'blue' : 'green'}
+        />
+      </>
+    );
+  }
+  if (object.type === RawObjectType.PEDESTRIAN) {
     return (
       <>
         {selected && (
@@ -157,6 +170,7 @@ function TrackedObjectItem({
           />
         )}
         <Pedestrian
+          onClick={onClick}
           x={object.x}
           y={object.y}
           heading={360}
@@ -166,14 +180,14 @@ function TrackedObjectItem({
       </>
     );
   }
-  if (object.type === ObjectType.Unknown) {
-    const origin = new Vector3(object.x, 1, object.y);
-    const target = new Vector3(object.prediction.x, 1, object.prediction.y);
-    const directionVector = target.sub(origin);
+  //if (object.type === RawObjectType.NO_DETECTION || true) {
+  const origin = new Vector3(object.x, 1, object.y);
+  const target = new Vector3(object.prediction.x, 1, object.prediction.y);
+  const directionVector = target.sub(origin);
 
-    return (
-      <>
-        {/*<UnknownObject
+  return (
+    <>
+      {/*<UnknownObject
           x={object.prediction.x}
           y={object.prediction.y}
           color="red"
@@ -191,20 +205,21 @@ function TrackedObjectItem({
             0.6,
           ]}
         />*/}
-        {selected && (
-          <History3D
-            component={<UnknownObject x={0} y={0} color="blue" />}
-            history={object.history}
-          />
-        )}
-        <UnknownObject
-          color={selected ? 'blue' : 'grey'}
-          x={object.x}
-          y={object.y}
-          opacity={object.ttl / 100}
+      {selected && (
+        <History3D
+          component={<UnknownObject x={0} y={0} color="blue" />}
+          history={object.history}
         />
-      </>
-    );
-  }
-  return null;
+      )}
+      <UnknownObject
+        onClick={onClick}
+        color={selected ? 'blue' : 'grey'}
+        x={object.x}
+        y={object.y}
+        opacity={object.ttl / 20}
+      />
+    </>
+  );
+  /*}
+  return null;*/
 }

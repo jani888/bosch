@@ -32,7 +32,10 @@ export function ObjectListItem(props: {
     <>
       <Card
         variant="outlined"
-        sx={{ borderColor: props.selected ? 'primary.main' : '' }}
+        sx={{
+          borderColor: props.selected ? 'primary.main' : '',
+          flexShrink: 0,
+        }}
         onClick={() => props.onSelect(props.trackedObject.uuid)}
       >
         <Box component="div" sx={{ py: 1, px: 2 }}>
@@ -44,7 +47,7 @@ export function ObjectListItem(props: {
                 fontSize={10}
                 color="grey.500"
               >
-                {props.trackedObject.uuid}
+                {props.trackedObject.uuid} - {props.trackedObject.ttl}
               </Typography>
               <Stack direction="row" alignItems="center">
                 <PlaceIcon sx={{ width: 14, height: 14, color: 'grey.500' }} />
@@ -88,9 +91,15 @@ export function ObjectListItem(props: {
             <TableHead>
               <TableRow>
                 <TableCell>Timestamp</TableCell>
+                <TableCell>Added time</TableCell>
                 <TableCell>Type</TableCell>
                 <TableCell>x</TableCell>
                 <TableCell>Y</TableCell>
+                <TableCell>vx</TableCell>
+                <TableCell>vy</TableCell>
+                <TableCell>ax</TableCell>
+                <TableCell>ay</TableCell>
+                <TableCell>Raw</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -104,9 +113,17 @@ export function ObjectListItem(props: {
                   }}
                 >
                   <TableCell>{measurement.timestamp.toFixed(0)}</TableCell>
+                  <TableCell>
+                    {measurement.actualTimestamp.toFixed(0)}
+                  </TableCell>
                   <TableCell>{measurement.itemType}</TableCell>
                   <TableCell>{measurement.x.toFixed(2)}</TableCell>
                   <TableCell>{measurement.y.toFixed(2)}</TableCell>
+                  <TableCell>{measurement.vx.toFixed(2)}</TableCell>
+                  <TableCell>{measurement.vy.toFixed(2)}</TableCell>
+                  <TableCell>{measurement.ax?.toFixed(2)}</TableCell>
+                  <TableCell>{measurement.ay?.toFixed(2)}</TableCell>
+                  <TableCell>{JSON.stringify(measurement.raw)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

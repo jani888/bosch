@@ -18,6 +18,7 @@ interface PedestrianProps {
   heading: number;
   color?: string;
   opacity?: number;
+  onClick?: () => void;
   //TODO: MovementState NOT implemented yet
   movementState?: PedestrianMovementState;
 }
@@ -112,6 +113,7 @@ export const Pedestrian = ({
     <>
       {model && (
         <group
+          onClick={props.onClick}
           position={[props.x, 0, props.y]}
           rotation={[0, ((props.heading + 90) * Math.PI) / 180, 0]}
         >

@@ -22,7 +22,10 @@ export const PlaybackContext = React.createContext<{
 });
 
 export enum DatasetType {
-  DATASET_1 = 'dataset1',
+  DATASET_1 = '15_17',
+  DATASET_2 = '15_12',
+  DATASET_3 = '14_49',
+  DATASET_4 = '15_03',
 }
 
 export const App = () => {
@@ -30,7 +33,7 @@ export const App = () => {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [selectedObjectId, setSelectedObjectId] = useState('');
   const trackedObjectList = Simulation.get().trackedObjects;
-  const [dataset, setDataset] = useState(DatasetType.DATASET_1);
+  const [dataset, setDataset] = useState(DatasetType.DATASET_3);
   const [length, setLength] = useState(0);
   const [timestamp, setTimestamp] = useState(0);
   const [bufferTimestamp, setBufferTimestamp] = useState(0);
@@ -53,7 +56,7 @@ export const App = () => {
     simulation.on('chunkLoaded', () => {
       setBufferTimestamp(simulation.bufferTimestamp);
     });
-    simulation.on('step', (dt: number) => {
+    simulation.on('step', () => {
       setTimestamp(simulation.currentTimestamp);
     });
   }, []);
@@ -86,12 +89,19 @@ export const App = () => {
                 onChange={(e) => setDataset(e.target.value as DatasetType)}
                 value={dataset}
               >
-                <MenuItem value={DatasetType.DATASET_1}>Dataset 1</MenuItem>
+                <MenuItem value={DatasetType.DATASET_1}>15_17</MenuItem>
+                <MenuItem value={DatasetType.DATASET_2}>15_12</MenuItem>
+                <MenuItem value={DatasetType.DATASET_3}>14_49</MenuItem>
+                <MenuItem value={DatasetType.DATASET_4}>15_03</MenuItem>
               </Select>
             </Stack>
-            <View3D data={trackedObjectList} selected={selectedObjectId} />
+            <View3D
+              onSelect={setSelectedObjectId}
+              data={trackedObjectList}
+              selected={selectedObjectId}
+            />
             <PlaybackControl
-              length={length + 1000000}
+              length={length}
               current={timestamp}
               buffer={bufferTimestamp}
               speed={playbackSpeed}
