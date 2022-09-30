@@ -4,7 +4,7 @@ import { UnknownObject } from './3d/objects/UnknownObject';
 import { BasePlane } from './BasePlane';
 import { Lights } from './Lights';
 import { Controls } from './Controls';
-import { ACESFilmicToneMapping, Fog, sRGBEncoding, Vector3 } from 'three';
+import { ACESFilmicToneMapping, sRGBEncoding, Vector3 } from 'three';
 import { Environment, Stats } from '@react-three/drei';
 import { Pedestrian, PedestrianMovementState } from './3d/objects/Pedestrian';
 import { Cyclist } from './3d/objects/Cyclist';
@@ -73,9 +73,15 @@ export function View3D({
           />
         ))}
 
-        <Car x={0} y={-2} heading={0} />
-        <Pedestrian x={0} y={0} heading={0} />
-        <Cyclist x={0} y={1} heading={0} />
+        <Car x={0} y={0} heading={0} color={'red'} />
+        <Pedestrian
+          y={0}
+          x={0}
+          heading={0}
+          color={'white'}
+          movementState={PedestrianMovementState.Idle}
+        />
+        <Cyclist x={0} y={4} heading={0} color={'orange'} />
 
         <BasePlane />
         <Controls />

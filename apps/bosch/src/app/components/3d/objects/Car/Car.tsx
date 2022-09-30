@@ -1,10 +1,17 @@
-import { Object3D, TextureLoader } from 'three';
+import {
+  CameraHelper,
+  Object3D,
+  PerspectiveCamera,
+  SpotLight,
+  SpotLightHelper,
+} from 'three';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import React, { useEffect, useMemo, useState } from 'react';
 import { setMaterials } from './SetCarMaterials';
 import { useFrame } from '@react-three/fiber';
 import { usePlayback } from '../../../../hooks/usePlayback';
+import { Plane, useHelper } from '@react-three/drei';
 
 interface CarProps {
   x: number;
@@ -57,6 +64,9 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
     });
   });
 
+  const cameraRef = React.useRef<PerspectiveCamera>(null);
+  useHelper(cameraRef, CameraHelper);
+
   return (
     <>
       {model && (
@@ -65,6 +75,23 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
           rotation={[0, ((props.heading + 90) * Math.PI) / 180, 0]}
         >
           <primitive object={model} />
+
+          <group position={[0, 0, 0]}>
+            <Plane
+              rotation={[-Math.PI / 2, 0, 0]}
+              position={[2, 0.5, 0]}
+              args={[1.5, 2.3]}
+            >
+              <meshStandardMaterial attach="material" color="red" />
+            </Plane>
+            <Plane
+              rotation={[-Math.PI / 2, 0, 0]}
+              position={[-2, 0.5, 0]}
+              args={[1.5, 2.3]}
+            >
+              <meshStandardMaterial attach="material" color="red" />
+            </Plane>
+          </group>
         </group>
       )}
     </>
