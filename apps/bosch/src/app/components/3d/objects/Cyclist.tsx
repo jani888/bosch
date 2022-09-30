@@ -4,6 +4,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Mesh, MeshPhysicalMaterial, Object3D, Vector3 } from 'three';
 import { useFrame } from '@react-three/fiber';
 import { usePlayback } from '../../../hooks/usePlayback';
+import { createMaterial } from './Custom3dHelpers';
 
 interface CyclistProps {
   x: number;
@@ -36,16 +37,7 @@ export const Cyclist = (props: CyclistProps) => {
         if (object instanceof Mesh) object.castShadow = true;
       });
 
-      const bodyMaterial = new MeshPhysicalMaterial({
-        color: props.color || 'gray',
-        opacity: props.opacity || 1,
-        transparent: true,
-        metalness: 0.6,
-        roughness: 0.5,
-        clearcoat: 1.0,
-        clearcoatRoughness: 0.03,
-        sheen: 0.5,
-      });
+      const bodyMaterial = createMaterial(props.color, props.opacity);
 
       modelData.children.forEach((child) => {
         if (child instanceof Mesh) {

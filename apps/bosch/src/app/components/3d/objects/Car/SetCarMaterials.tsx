@@ -6,6 +6,7 @@ import {
   MeshStandardMaterial,
   Object3D,
 } from 'three';
+import { makeMaterialsTransparent } from '../Custom3dHelpers';
 
 export function setMaterials(
   carModel: Object3D,
@@ -48,10 +49,5 @@ export function setMaterials(
   carModel.getObjectByName('trim').material = detailsMaterial;
   carModel.getObjectByName('glass').material = glassMaterial;
 
-  carModel.traverse((object) => {
-    if (object instanceof Mesh) {
-      object.material.opacity = opacity;
-      object.material.transparent = opacity < 1;
-    }
-  });
+  makeMaterialsTransparent(carModel, color, opacity);
 }

@@ -83,12 +83,6 @@ export const Pedestrian = ({
     loader.load('/assets/Xbot.glb', (gltf) => {
       const modelData = gltf.scene;
 
-      modelData.traverse((object) => {
-        if (object instanceof Mesh) {
-          object.castShadow = true;
-        }
-      });
-
       colorPedestrian(color, opacity, modelData);
 
       const mixer = new AnimationMixer(gltf.scene);

@@ -10,6 +10,8 @@ import { Pedestrian, PedestrianMovementState } from './3d/objects/Pedestrian';
 import { Cyclist } from './3d/objects/Cyclist';
 import { Car } from './3d/objects/Car/Car';
 import { TrackedObject } from '../TrackedObject';
+import { FireTruck } from '@mui/icons-material';
+import { Truck } from './3d/objects/Truck';
 
 export enum ObjectType {
   Unknown = 'Unknown',
@@ -73,7 +75,7 @@ export function View3D({
           />
         ))}
 
-        <Car x={0} y={0} heading={0} color={'red'} />
+        <Truck x={0} y={0} heading={0} opacity={1} color={'green'} />
         <Pedestrian
           y={0}
           x={0}
