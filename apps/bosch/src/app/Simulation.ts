@@ -2,17 +2,7 @@ import { NormalizedMeasurement, ObjectType } from './components/View3D';
 import { EventEmitter } from 'events';
 import { DatasetType } from './app';
 import { TrackedObject } from './TrackedObject';
-
-export interface RawMeasurement {
-  consumed: boolean;
-  timestamp: number;
-  a: number;
-  b: number;
-}
-
-type ApiResponse = {
-  data: RawMeasurement[];
-};
+import { ApiResponse, RawMeasurement } from '@bosch/api-interfaces';
 
 export class Simulation extends EventEmitter {
   private static instance: Simulation;
