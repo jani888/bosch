@@ -73,13 +73,17 @@ export function View3D({
 
         <UnknownObject x={5} y={0} />
 
-        {data.map((trackedObject) => (
-          <TrackedObjectItem
-            selected={trackedObject.uuid === selected}
-            key={trackedObject.uuid}
-            object={trackedObject}
-          />
-        ))}
+        <group scale={[1, 1, -1]}>
+          <UnknownObject x={0} y={5} color={'red'} />
+
+          {data.map((trackedObject) => (
+            <TrackedObjectItem
+              selected={trackedObject.uuid === selected}
+              key={trackedObject.uuid}
+              object={trackedObject}
+            />
+          ))}
+        </group>
 
         <BasePlane />
         <Controls />
