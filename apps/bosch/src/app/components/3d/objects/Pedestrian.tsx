@@ -6,6 +6,7 @@ import {
   AnimationClip,
   AnimationMixer,
   Mesh,
+  MeshPhysicalMaterial,
   Object3D,
 } from 'three';
 import { useFrame, useLoader } from '@react-three/fiber';
@@ -46,8 +47,25 @@ export const Pedestrian = ({
 
   useEffect(() => {
     loader.load('/assets/Xbot.glb', (gltf) => {
-      gltf.scene.traverse((object) => {
+      const modelData = gltf.scene;
+
+      modelData.traverse((object) => {
         if (object instanceof Mesh) object.castShadow = true;
+      });
+
+      const bodyMaterial = new MeshPhysicalMaterial({
+        color: 0xff6f00,
+        metalness: 1.0,
+        roughness: 0.5,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.03,
+        sheen: 0.5,
+      });
+
+      modelData.children.forEach((child) => {
+        if (child instanceof Mesh) {
+          child.material = bodyMaterial;
+        }
       });
 
       const mixer = new AnimationMixer(gltf.scene);

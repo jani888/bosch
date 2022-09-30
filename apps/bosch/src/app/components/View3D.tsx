@@ -4,13 +4,12 @@ import { UnknownObject } from './3d/objects/UnknownObject';
 import { BasePlane } from './BasePlane';
 import { Lights } from './Lights';
 import { Controls } from './Controls';
-import { Stack } from '@mui/material';
-import { ObjectList } from './object-list/ObjectList';
 import { ACESFilmicToneMapping, Fog, sRGBEncoding, Vector3 } from 'three';
 import { Environment } from '@react-three/drei';
-import { Car } from './3d/objects/Car/Car';
 import { TrackedObject } from '../simulation';
 import { Pedestrian, PedestrianMovementState } from './3d/objects/Pedestrian';
+import { Cyclist } from './3d/objects/Cyclist';
+import { Car } from './3d/objects/Car/Car';
 
 export enum ObjectType {
   Unknown = 'Unknown',
@@ -60,29 +59,28 @@ export function View3D({
           path={'/'}
         />
 
-          <Lights />
+        <Lights />
 
-          {data.map((trackedObject) => (
+        {data.map((trackedObject) => (
           <TrackedObjectItem
             selected={trackedObject.uuid === selected}
             key={trackedObject.uuid}
             object={trackedObject}
-
-            />
-          ))}
-          <UnknownObject x={5} y={0} />
-          <Car heading={45} x={5} y={5} />
-          <Pedestrian
-            x={0}
-            y={-5}
-            heading={45}
-            movementState={PedestrianMovementState.Walking}
           />
+        ))}
+        <UnknownObject x={5} y={0} />
+        <Pedestrian
+          x={0}
+          y={10}
+          heading={90}
+          movementState={PedestrianMovementState.Idle}
+        />
+        <Cyclist x={0} y={0} heading={45} color={'red'} opacity={0.5} />
 
-          <BasePlane />
-          <Controls />
-        </scene>
-      </Canvas>
+        <BasePlane />
+        <Controls />
+      </scene>
+    </Canvas>
   );
 }
 

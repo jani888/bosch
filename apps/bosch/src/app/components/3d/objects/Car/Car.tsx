@@ -1,4 +1,4 @@
-import { Euler, MultiplyBlending, Object3D, TextureLoader } from 'three';
+import { Object3D, TextureLoader } from 'three';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import React, { useEffect, useMemo, useState } from 'react';
