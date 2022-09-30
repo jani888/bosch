@@ -156,7 +156,24 @@ export class Simulation extends EventEmitter {
     this.emit('step', dt);
     this.lastTime = time;
     this.currentTimestamp += dt * this.playbackSpeed;
-    this.trackedObjects = [new TrackedObject()];
+    this.trackedObjects = [];
+    this.trackedObjects.push(new TrackedObject());
+    this.trackedObjects.push(new TrackedObject());
+    this.trackedObjects.push(new TrackedObject());
+    this.trackedObjects.push(new TrackedObject());
+    this.trackedObjects.push(new TrackedObject());
+    this.trackedObjects.push(new TrackedObject());
+    this.trackedObjects.push(new TrackedObject());
+    this.trackedObjects.push(new TrackedObject());
+    this.trackedObjects.push(new TrackedObject());
+    this.trackedObjects.push(new TrackedObject());
+    for (let i = 0; i < 10; i++) {
+      this.trackedObjects[i].type =
+        Math.random() > 0.5 ? ObjectType.Pedestrian : ObjectType.Cyclist;
+      this.trackedObjects[i].x = Math.random() * 10;
+      this.trackedObjects[i].y = Math.random() * 10;
+      this.trackedObjects[i].uuid = 'test' + i;
+    }
     this.updatePredictions(dt);
     const pendingMeasurements = this.data.filter(
       (item) => item.timestamp <= this.currentTimestamp && !item.consumed

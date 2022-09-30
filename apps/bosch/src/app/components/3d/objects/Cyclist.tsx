@@ -82,7 +82,7 @@ export const Cyclist = (props: CyclistProps) => {
 
       setModel(modelData);
     });
-  }, [loader]);
+  }, [loader, props.color, props.opacity]);
 
   useFrame((state, delta, frame) => {
     if (!isPlaying) return;

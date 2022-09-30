@@ -5,7 +5,7 @@ import { BasePlane } from './BasePlane';
 import { Lights } from './Lights';
 import { Controls } from './Controls';
 import { ACESFilmicToneMapping, Fog, sRGBEncoding, Vector3 } from 'three';
-import { Environment } from '@react-three/drei';
+import { Environment, Stats } from '@react-three/drei';
 import { Pedestrian, PedestrianMovementState } from './3d/objects/Pedestrian';
 import { Cyclist } from './3d/objects/Cyclist';
 import { Car } from './3d/objects/Car/Car';
@@ -53,6 +53,8 @@ export function View3D({
       }}
     >
       <scene>
+        <Stats />
+
         <fog color={0x333333} near={80} far={100} />
 
         <Environment
@@ -110,6 +112,25 @@ function TrackedObjectItem({
   object: TrackedObject;
   selected: boolean;
 }) {
+  console.log(selected);
+  if (object.type === ObjectType.Cyclist) {
+    return (
+      <>
+        {selected && (
+          <History3D
+            component={<Cyclist heading={360} x={0} y={0} color="blue" />}
+            history={object.history}
+          />
+        )}
+        <Cyclist
+          x={object.x}
+          y={object.y}
+          heading={360}
+          color={selected ? 'blue' : 'grey'}
+        />
+      </>
+    );
+  }
   if (object.type === ObjectType.Pedestrian) {
     return (
       <>

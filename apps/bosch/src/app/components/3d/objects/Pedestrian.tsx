@@ -98,7 +98,7 @@ export const Pedestrian = ({
       setModel(gltf.scene);
       setAnimations(gltf.animations);
     });
-  }, [loader]);
+  }, [loader, color, opacity, movementState]);
 
   useEffect(() => {
     if (mixer) {
