@@ -70,14 +70,10 @@ export function View3D({
             object={trackedObject}
           />
         ))}
-        <UnknownObject x={5} y={0} />
-        <Pedestrian
-          x={0}
-          y={0}
-          heading={90}
-          color={'gray'}
-          movementState={PedestrianMovementState.Idle}
-        />
+
+        <Car x={0} y={-2} heading={0} />
+        <Pedestrian x={0} y={0} heading={0} />
+        <Cyclist x={0} y={1} heading={0} />
 
         <BasePlane />
         <Controls />

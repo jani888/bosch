@@ -1,10 +1,21 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment*/
 // @ts-nocheck
-import { MeshPhysicalMaterial, MeshStandardMaterial, Object3D } from 'three';
+import {
+  Mesh,
+  MeshPhysicalMaterial,
+  MeshStandardMaterial,
+  Object3D,
+} from 'three';
 
-export function setMaterials(carModel: Object3D) {
+export function setMaterials(
+  carModel: Object3D,
+  color: string,
+  opacity: number
+) {
   const bodyMaterial = new MeshPhysicalMaterial({
-    color: 0xff6f00,
+    color: color,
+    opacity: opacity,
+    transparent: opacity < 1,
     metalness: 1.0,
     roughness: 0.5,
     clearcoat: 1.0,
@@ -14,12 +25,16 @@ export function setMaterials(carModel: Object3D) {
 
   const detailsMaterial = new MeshStandardMaterial({
     color: 0xffffff,
+    opacity: opacity,
+    transparent: opacity < 1,
     metalness: 1.0,
     roughness: 0.5,
   });
 
   const glassMaterial = new MeshPhysicalMaterial({
     color: 0xffffff,
+    opacity: opacity,
+    transparent: opacity < 1,
     metalness: 0.25,
     roughness: 0,
     transmission: 1.0,
@@ -32,4 +47,11 @@ export function setMaterials(carModel: Object3D) {
   carModel.getObjectByName('rim_rl').material = detailsMaterial;
   carModel.getObjectByName('trim').material = detailsMaterial;
   carModel.getObjectByName('glass').material = glassMaterial;
+
+  carModel.traverse((object) => {
+    if (object instanceof Mesh) {
+      object.material.opacity = opacity;
+      object.material.transparent = opacity < 1;
+    }
+  });
 }
