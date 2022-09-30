@@ -12,6 +12,7 @@ import { Car } from './3d/objects/Car/Car';
 import { TrackedObject } from '../TrackedObject';
 import { FireTruck } from '@mui/icons-material';
 import { Truck } from './3d/objects/Truck';
+import { MotorBike } from './3d/objects/MotorBike';
 
 export enum ObjectType {
   Unknown = 'Unknown',
@@ -67,6 +68,8 @@ export function View3D({
 
         <Lights />
 
+        <Cyclist x={0} y={0} heading={0} />
+
         {data.map((trackedObject) => (
           <TrackedObjectItem
             selected={trackedObject.uuid === selected}
@@ -74,16 +77,6 @@ export function View3D({
             object={trackedObject}
           />
         ))}
-
-        <Truck x={0} y={0} heading={0} opacity={1} color={'green'} />
-        <Pedestrian
-          y={0}
-          x={0}
-          heading={0}
-          color={'white'}
-          movementState={PedestrianMovementState.Idle}
-        />
-        <Cyclist x={0} y={4} heading={0} color={'orange'} />
 
         <BasePlane />
         <Controls />
