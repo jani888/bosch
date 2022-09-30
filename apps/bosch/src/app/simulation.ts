@@ -12,7 +12,7 @@ export function step(dt: number) {
     const measurement: NormalizedMeasurement = {
       x: Math.random() * 10,
       y: Math.random() * 10,
-      type: ObjectType.Unknown,
+      type: ObjectType.Pedestrian,
     };
     updateTracking(measurement, dt);
   }
@@ -46,6 +46,7 @@ function updatePredictions(dt: number) {
 export class TrackedObject {
   public ttl = 100;
   public history: HistoryItem[] = [];
+  public predictions: HistoryItem[] = [];
   public uuid = Math.random().toString(36).substring(7);
   public x = 0;
   public y = 0;
@@ -65,7 +66,7 @@ export class TrackedObject {
     this.ttl = 100;
     this.x = measurement.x;
     this.y = measurement.y;
-    if (measurement.type === ObjectType.Unknown) {
+    if (this.type === ObjectType.Unknown && measurement.type) {
       this.type = measurement.type;
     }
     this.history.push({
@@ -100,13 +101,20 @@ export class TrackedObject {
     const vy = dy / dt;
     const x = this.history[this.history.length - 1].x + vx * dt2;
     const y = this.history[this.history.length - 1].y + vy * dt2;
-    /*this.history.push({
+    this.history.push({
       timestamp: this.history[this.history.length - 1].timestamp + dt2,
       x,
       y,
       confidence: 0.7,
       itemType: 'prediction',
-    });*/
+    });
+    this.predictions.push({
+      timestamp: this.history[this.history.length - 1].timestamp + dt2,
+      x,
+      y,
+      confidence: 0.7,
+      itemType: 'prediction',
+    });
     this.prediction = { x, y };
   }
 }

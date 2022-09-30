@@ -16,6 +16,8 @@ interface PedestrianProps {
   x: number;
   y: number;
   heading: number;
+  color?: string;
+  opacity?: number;
   //TODO: MovementState NOT implemented yet
   movementState?: PedestrianMovementState;
 }

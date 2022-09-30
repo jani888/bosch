@@ -8,11 +8,17 @@ import React from 'react';
 
 export function ObjectTypeIcon({ type }: { type: ObjectType }) {
   return (
-    <Box component="div" sx={{ ml: 'auto', mt: 'auto', color: 'grey.400' }}>
-      {type === ObjectType.Unknown && <HelpIcon />}
-      {type === ObjectType.Pedestrian && <AccessibilityIcon />}
-      {type === ObjectType.Cyclist && <DirectionsBikeIcon />}
-      {type === ObjectType.Car && <DirectionsCarIcon />}
-    </Box>
+    <>
+      {type === ObjectType.Unknown && <HelpIcon sx={{ color: 'grey.400' }} />}
+      {type === ObjectType.Pedestrian && (
+        <AccessibilityIcon sx={{ color: 'grey.400' }} />
+      )}
+      {type === ObjectType.Cyclist && (
+        <DirectionsBikeIcon sx={{ color: 'grey.400' }} />
+      )}
+      {type === ObjectType.Car && (
+        <DirectionsCarIcon sx={{ color: 'grey.400' }} />
+      )}
+    </>
   );
 }

@@ -96,6 +96,7 @@ function History3D({
       {history.map((historyItem, index) => (
         <group key={index} position={[historyItem.x, 0, historyItem.y]}>
           {React.cloneElement(component, {
+            color: historyItem.itemType === 'measurement' ? 'red' : 'blue',
             opacity: (index + 1) / (history.length + 1),
           })}
         </group>
@@ -111,6 +112,33 @@ function TrackedObjectItem({
   object: TrackedObject;
   selected: boolean;
 }) {
+  if (object.type === ObjectType.Pedestrian) {
+    return (
+      <>
+        {selected && (
+          <History3D
+            component={
+              <Pedestrian
+                heading={360}
+                movementState={PedestrianMovementState.Idle}
+                x={0}
+                y={0}
+                color="blue"
+              />
+            }
+            history={object.history}
+          />
+        )}
+        <Pedestrian
+          x={object.x}
+          y={object.y}
+          heading={360}
+          movementState={PedestrianMovementState.Walking}
+          color={selected ? 'blue' : 'grey'}
+        />
+      </>
+    );
+  }
   if (object.type === ObjectType.Unknown) {
     const origin = new Vector3(object.x, 1, object.y);
     const target = new Vector3(object.prediction.x, 1, object.prediction.y);
