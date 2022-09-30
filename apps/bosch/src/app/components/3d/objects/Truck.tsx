@@ -58,7 +58,7 @@ export const Truck = ({ opacity = 1, ...props }: TruckProps) => {
       {model && (
         <group
           position={[props.x, 0, props.y]}
-          rotation={[0, ((props.heading + 180) * Math.PI) / 180, 0]}
+          rotation={[0, (props.heading * Math.PI) / 180, 0]}
           scale={[0.028, 0.028, 0.028]}
         >
           <primitive object={model} />

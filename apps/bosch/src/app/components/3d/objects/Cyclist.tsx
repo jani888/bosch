@@ -89,7 +89,7 @@ export const Cyclist = (props: CyclistProps) => {
         <group
           scale={[0.028, 0.028, 0.028]}
           position={[props.x, 0, props.y]}
-          rotation={[-Math.PI / 2, 0, ((props.heading + 180) * Math.PI) / 180]}
+          rotation={[-Math.PI / 2, 0, (props.heading * Math.PI) / 180]}
         >
           <primitive object={model} />
         </group>

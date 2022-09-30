@@ -52,7 +52,7 @@ export const MotorBike = (props: MotorBikeProps) => {
         <group
           scale={[0.15, 0.15, 0.15]}
           position={[props.x, 0, props.y]}
-          rotation={[Math.PI, 0, ((props.heading + 180) * Math.PI) / 180]}
+          rotation={[Math.PI, Math.PI, ((props.heading + 180) * Math.PI) / 180]}
         >
           <group position={[0, 3.2, 0]}>
             <primitive object={model} />

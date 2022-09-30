@@ -69,9 +69,9 @@ export function View3D({
 
         <Lights />
 
-        <Truck x={0} y={6} heading={0} />
-        <TruckOrCar x={0} y={0} heading={0} />
-        <Car x={0} y={-6} heading={0} />
+        <Car x={0} y={0} heading={0} />
+
+        <UnknownObject x={5} y={0} />
 
         {data.map((trackedObject) => (
           <TrackedObjectItem

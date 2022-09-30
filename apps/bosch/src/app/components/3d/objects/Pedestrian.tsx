@@ -113,7 +113,7 @@ export const Pedestrian = ({
       {model && (
         <group
           position={[props.x, 0, props.y]}
-          rotation={[0, ((props.heading - 90) * Math.PI) / 180, 0]}
+          rotation={[0, ((props.heading + 90) * Math.PI) / 180, 0]}
         >
           <primitive object={model} />
         </group>

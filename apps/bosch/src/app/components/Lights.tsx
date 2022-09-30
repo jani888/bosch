@@ -9,7 +9,7 @@ export function Lights() {
         shadow-mapSize-height={4096}
         position={[0, 10, 0]}
         intensity={0.5}
-        castShadow={true}
+        castShadow={false}
       />
     </>
   );
