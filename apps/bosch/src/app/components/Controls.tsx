@@ -1,5 +1,5 @@
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import React from 'react';
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 
 export function Controls() {
   return (

@@ -1,11 +1,12 @@
-import { CameraHelper, Object3D, PerspectiveCamera } from 'three';
+import { Object3D } from 'three';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import React, { useEffect, useMemo, useState } from 'react';
 import { setMaterials } from './SetCarMaterials';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { usePlayback } from '../../../../hooks/usePlayback';
 import { Plane } from '@react-three/drei';
+import { getCarSensors } from './GetCarSensors';
 
 interface CarProps {
   x: number;
@@ -30,6 +31,14 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
     loader.setDRACOLoader(dracoLoader);
     return loader;
   }, []);
+
+  const sensors = useMemo(() => getCarSensors(), []);
+
+  useThree(({ scene }) => {
+    sensors.forEach((sensor) => {
+      scene.add(sensor.camera);
+    });
+  });
 
   useEffect(() => {
     loader.load('assets/ferrari.glb', (gltf) => {
@@ -56,23 +65,6 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
     wheels.forEach((wheel) => {
       wheel.rotation.x -= delta * speed * Math.PI * 2;
     });
-  });
-
-  const sensors = sensorPositions.map((sensorPos) => {
-    const camera = new PerspectiveCamera(80, 2, 2, 10);
-    const camHelper = new CameraHelper(camera);
-
-    camera.position.set(sensorPos.y, sensorPos.z, sensorPos.x);
-    camera.rotation.set(
-      (sensorPos.elevation_angle * Math.PI) / 180,
-      Math.PI + (sensorPos.azimuth_angle * Math.PI) / 180,
-      0
-    );
-    return {
-      name: sensorPos.name,
-      camera,
-      helper: camHelper,
-    };
   });
 
   return (
@@ -117,47 +109,3 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
     </>
   );
 };
-
-//Angles are in degrees
-//Position is in millimeters
-const sensorPositions: {
-  name: string;
-  x: number;
-  y: number;
-  z: number;
-  elevation_angle: number;
-  azimuth_angle: number;
-}[] = [
-  {
-    name: 'left-front',
-    x: 3.4738,
-    y: 0.6286,
-    z: 0.5156,
-    elevation_angle: 0,
-    azimuth_angle: 42,
-  },
-  {
-    name: 'left-rear',
-    x: -0.7664,
-    y: 0.738,
-    z: 0.7359,
-    elevation_angle: 0.48,
-    azimuth_angle: 135,
-  },
-  {
-    name: 'right-front',
-    x: 3.4738,
-    y: -0.6286,
-    z: 0.5156,
-    elevation_angle: 0,
-    azimuth_angle: -42,
-  },
-  {
-    name: 'right-rear',
-    x: -0.7664,
-    y: -0.738,
-    z: 0.7359,
-    elevation_angle: 0.48,
-    azimuth_angle: -135,
-  },
-];
