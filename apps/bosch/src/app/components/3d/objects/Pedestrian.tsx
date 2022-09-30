@@ -6,6 +6,7 @@ import {
   AnimationClip,
   AnimationMixer,
   Mesh,
+  MeshPhysicalMaterial,
   Object3D,
 } from 'three';
 import { useFrame, useLoader } from '@react-three/fiber';
@@ -27,8 +28,40 @@ export enum PedestrianMovementState {
   Running = 3,
 }
 
+function colorPedestrian(color: string, opacity: number, modelData: Object3D) {
+  const bodyMaterial = new MeshPhysicalMaterial({
+    color: color,
+    opacity: opacity,
+    transparent: opacity < 1,
+    metalness: 0.4,
+    roughness: 0.8,
+    clearcoat: 1.0,
+  });
+
+  const jointMaterial = new MeshPhysicalMaterial({
+    color: color,
+    opacity: opacity,
+    transparent: opacity < 1,
+    metalness: 0.8,
+    reflectivity: 0.8,
+    roughness: 0.0,
+  });
+
+  const betaJoints = modelData.getObjectByName('Beta_Joints');
+  if (betaJoints instanceof Mesh) {
+    betaJoints.material = jointMaterial;
+  }
+
+  const betaSurface = modelData.getObjectByName('Beta_Surface');
+  if (betaSurface instanceof Mesh) {
+    betaSurface.material = bodyMaterial;
+  }
+}
+
 export const Pedestrian = ({
   movementState = PedestrianMovementState.Idle,
+  color = 'gray',
+  opacity = 1,
   ...props
 }: PedestrianProps) => {
   const [model, setModel] = useState<Object3D>();
@@ -48,9 +81,15 @@ export const Pedestrian = ({
 
   useEffect(() => {
     loader.load('/assets/Xbot.glb', (gltf) => {
-      gltf.scene.traverse((object) => {
-        if (object instanceof Mesh) object.castShadow = true;
+      const modelData = gltf.scene;
+
+      modelData.traverse((object) => {
+        if (object instanceof Mesh) {
+          object.castShadow = true;
+        }
       });
+
+      colorPedestrian(color, opacity, modelData);
 
       const mixer = new AnimationMixer(gltf.scene);
       mixer.clipAction(gltf.animations[movementState]).play();

@@ -6,9 +6,10 @@ import { Lights } from './Lights';
 import { Controls } from './Controls';
 import { ACESFilmicToneMapping, Fog, sRGBEncoding, Vector3 } from 'three';
 import { Environment } from '@react-three/drei';
-import { Car } from './3d/objects/Car/Car';
 import { TrackedObject } from '../simulation';
 import { Pedestrian, PedestrianMovementState } from './3d/objects/Pedestrian';
+import { Cyclist } from './3d/objects/Cyclist';
+import { Car } from './3d/objects/Car/Car';
 
 export enum ObjectType {
   Unknown = 'Unknown',
@@ -51,7 +52,9 @@ export function View3D({
         pixelRatio: window.devicePixelRatio,
       }}
     >
-      <scene fog={new Fog(0x333333, 10, 15)}>
+      <scene>
+        <fog color={0x333333} near={80} far={100} />
+
         <Environment
           background={true} // Whether to affect scene.background
           files={'assets/venice_sunset_1k.hdr'}
@@ -68,12 +71,12 @@ export function View3D({
           />
         ))}
         <UnknownObject x={5} y={0} />
-        <Car heading={45} x={5} y={5} />
         <Pedestrian
           x={0}
-          y={-5}
-          heading={45}
-          movementState={PedestrianMovementState.Walking}
+          y={0}
+          heading={90}
+          color={'gray'}
+          movementState={PedestrianMovementState.Idle}
         />
 
         <BasePlane />

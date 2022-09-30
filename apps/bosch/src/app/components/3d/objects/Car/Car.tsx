@@ -1,4 +1,4 @@
-import { Euler, MultiplyBlending, Object3D, TextureLoader } from 'three';
+import { Object3D, TextureLoader } from 'three';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -18,8 +18,6 @@ export const Car = (props: CarProps) => {
   const { isPlaying, speed } = usePlayback();
   const [model, setModel] = useState<Object3D>();
   const [wheels, setWheels] = useState<Object3D[]>([]);
-
-  const shadow = new TextureLoader().load('assets/ferrari_ao.png');
 
   const loader = useMemo(() => {
     const dracoLoader = new DRACOLoader();
