@@ -5,7 +5,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { setMaterials } from './SetCarMaterials';
 import { useFrame, useThree } from '@react-three/fiber';
 import { usePlayback } from '../../../../hooks/usePlayback';
-import { Plane } from '@react-three/drei';
+import { Plane, useGLTF } from '@react-three/drei';
 import { getCarSensors } from './GetCarSensors';
 
 interface CarProps {
@@ -25,14 +25,7 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
   const [wheels, setWheels] = useState<Object3D[]>([]);
   const [fixRotation, setFixRotation] = useState(90);
 
-  const loader = useMemo(() => {
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('assets/draco/gltf/');
-
-    const loader = new GLTFLoader();
-    loader.setDRACOLoader(dracoLoader);
-    return loader;
-  }, []);
+  const rawModel = useGLTF('assets/ferrari.glb', true);
 
   const sensors = useMemo(() => getCarSensors(), []);
 
@@ -43,25 +36,24 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
   });
 
   useEffect(() => {
-    loader.load('assets/ferrari.glb', (gltf) => {
-      const carModel = gltf.scene.children[0];
-      if (!carModel) {
-        console.error('No car model found');
-        return;
-      }
-      setMaterials(carModel, color, opacity);
+    console.log(rawModel);
+    const carModel = rawModel.scene.clone().children[0];
+    if (!carModel) {
+      console.error('No car model found');
+      return;
+    }
+    setMaterials(carModel, color, opacity);
 
-      const wheelList = [
-        carModel.getObjectByName('wheel_fl'),
-        carModel.getObjectByName('wheel_fr'),
-        carModel.getObjectByName('wheel_rl'),
-        carModel.getObjectByName('wheel_rr'),
-      ];
-      setWheels(wheelList.filter((a) => a) as Object3D[]);
-      setModel(carModel);
-      setFixRotation(0);
-    });
-  }, [loader]);
+    const wheelList = [
+      carModel.getObjectByName('wheel_fl'),
+      carModel.getObjectByName('wheel_fr'),
+      carModel.getObjectByName('wheel_rl'),
+      carModel.getObjectByName('wheel_rr'),
+    ];
+    setWheels(wheelList.filter((a) => a) as Object3D[]);
+    setModel(carModel);
+    setFixRotation(0);
+  }, [rawModel]);
 
   useFrame((state, delta, frame) => {
     if (!isPlaying) return;

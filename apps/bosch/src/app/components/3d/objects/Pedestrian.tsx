@@ -11,6 +11,7 @@ import {
 } from 'three';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import { useGLTF } from '@react-three/drei';
 
 interface PedestrianProps {
   x: number;
@@ -71,29 +72,20 @@ export const Pedestrian = ({
     useState<PedestrianMovementState>(movementState);
   const [animations, setAnimations] = useState<AnimationClip[]>([]);
 
-  const loader = useMemo(() => {
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('assets/draco/gltf/');
-
-    const loader = new GLTFLoader();
-    loader.setDRACOLoader(dracoLoader);
-    return loader;
-  }, []);
+  const rawModel = useGLTF('/assets/Xbot.glb', true);
 
   useEffect(() => {
-    loader.load('/assets/Xbot.glb', (gltf) => {
-      const modelData = gltf.scene;
+    const modelData = SkeletonUtils.clone(rawModel.scene);
 
-      colorPedestrian(color, opacity, modelData);
+    colorPedestrian(color, opacity, modelData);
 
-      const mixer = new AnimationMixer(gltf.scene);
-      mixer.clipAction(gltf.animations[movementState]).play();
+    const mixer = new AnimationMixer(modelData);
+    mixer.clipAction(rawModel.animations[movementState]).play();
 
-      setMixer(mixer);
-      setModel(gltf.scene);
-      setAnimations(gltf.animations);
-    });
-  }, [loader, color, opacity, movementState]);
+    setMixer(mixer);
+    setModel(modelData);
+    setAnimations(rawModel.animations);
+  }, [color, opacity, movementState]);
 
   useEffect(() => {
     if (mixer) {

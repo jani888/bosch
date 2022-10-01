@@ -9,7 +9,7 @@ export function Controls({
 }): React.ReactElement {
   return (
     <>
-      <PerspectiveCamera position={[2, 2, 2]} makeDefault />
+      <PerspectiveCamera position={[10, 10, 10]} makeDefault />
       <OrbitControls
         enableDamping={true}
         maxPolarAngle={(80 / 180) * Math.PI}

@@ -5,6 +5,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { createMaterial } from './Custom3dHelpers';
 import { useFrame } from '@react-three/fiber';
+import { useGLTF } from '@react-three/drei';
 
 interface MotorBikeProps {
   x: number;
@@ -17,34 +18,25 @@ interface MotorBikeProps {
 export const MotorBike = (props: MotorBikeProps) => {
   const [model, setModel] = useState<Object3D>();
 
-  const loader = useMemo(() => {
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('assets/draco/gltf/');
-
-    const loader = new GLTFLoader();
-    loader.setDRACOLoader(dracoLoader);
-    return loader;
-  }, []);
+  const rawModel = useGLTF('/assets/motorbike.glb', true);
 
   useEffect(() => {
-    loader.load('/assets/motorbike.glb', (gltf) => {
-      const modelData = gltf.scene;
+    const modelData = rawModel.scene.clone();
 
-      modelData.traverse((object) => {
-        if (object instanceof Mesh) object.castShadow = true;
-      });
-
-      const bodyMaterial = createMaterial(props.color, props.opacity);
-
-      modelData.traverse((child) => {
-        if (child instanceof Mesh) {
-          child.material = bodyMaterial;
-        }
-      });
-
-      setModel(modelData);
+    modelData.traverse((object) => {
+      if (object instanceof Mesh) object.castShadow = true;
     });
-  }, [loader, props.color, props.opacity]);
+
+    const bodyMaterial = createMaterial(props.color, props.opacity);
+
+    modelData.traverse((child) => {
+      if (child instanceof Mesh) {
+        child.material = bodyMaterial;
+      }
+    });
+
+    setModel(modelData);
+  }, [props.color, props.opacity]);
 
   return (
     <>

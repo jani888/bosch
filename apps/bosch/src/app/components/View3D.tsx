@@ -10,11 +10,9 @@ import { Pedestrian, PedestrianMovementState } from './3d/objects/Pedestrian';
 import { Cyclist } from './3d/objects/Cyclist';
 import { Car } from './3d/objects/Car/Car';
 import { TrackedObject } from '../TrackedObject';
-import { FireTruck } from '@mui/icons-material';
 import { Truck } from './3d/objects/Truck';
 import { NormalizedObjectData, RawObjectType } from '@bosch/api-interfaces';
 import { MotorBike } from './3d/objects/MotorBike';
-import { TruckOrCar } from './3d/objects/TruckOrCar';
 
 export enum ObjectType {
   Unknown = 'Unknown',

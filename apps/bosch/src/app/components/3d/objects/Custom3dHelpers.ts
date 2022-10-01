@@ -5,6 +5,8 @@ import {
   Object3D,
   Shape,
 } from 'three';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 export const createMaterial = (
   color?: string,

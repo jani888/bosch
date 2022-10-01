@@ -3,6 +3,8 @@ import { Mesh, MeshPhysicalMaterial, Object3D, Vector3 } from 'three';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { createMaterial, makeMaterialsTransparent } from './Custom3dHelpers';
+import { useGLTF } from '@react-three/drei';
+import { raw } from 'express';
 
 interface TruckProps {
   x: number;
@@ -14,44 +16,34 @@ interface TruckProps {
 
 export const Truck = ({ opacity = 1, ...props }: TruckProps) => {
   const [model, setModel] = useState<Object3D>();
-  const [wheels, setWheels] = useState<Object3D[]>([]);
 
-  const loader = useMemo(() => {
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('assets/draco/gltf/');
-
-    const loader = new GLTFLoader();
-    loader.setDRACOLoader(dracoLoader);
-    return loader;
-  }, []);
+  const rawModel = useGLTF('/assets/truck.glb', true);
 
   useEffect(() => {
-    loader.load('assets/truck.glb', (gltf) => {
-      const truckModel = gltf.scene.children[0];
-      if (!truckModel) {
-        console.error('No car model found');
-        return;
-      }
+    const truckModel = rawModel.scene.clone().children[0];
+    if (!truckModel) {
+      console.error('No car model found');
+      return;
+    }
 
-      console.log(truckModel);
+    console.log(truckModel);
 
-      const truckBox = truckModel.getObjectByName('hood_body_0');
+    const truckBox = truckModel.getObjectByName('hood_body_0');
 
-      if (truckBox instanceof Mesh) {
-        truckBox.material = createMaterial(props.color, opacity);
+    if (truckBox instanceof Mesh) {
+      truckBox.material = createMaterial(props.color, opacity);
 
-        const center = new Vector3();
-        truckBox.geometry.computeBoundingBox();
-        truckBox.geometry.boundingBox.getCenter(center);
-        truckBox.geometry.center();
-        truckBox.position.copy(center);
-      }
+      const center = new Vector3();
+      truckBox.geometry.computeBoundingBox();
+      truckBox.geometry.boundingBox.getCenter(center);
+      truckBox.geometry.center();
+      truckBox.position.copy(center);
+    }
 
-      makeMaterialsTransparent(truckModel, opacity);
+    makeMaterialsTransparent(truckModel, opacity);
 
-      setModel(truckModel);
-    });
-  }, [loader]);
+    setModel(truckModel);
+  }, [rawModel]);
 
   return (
     <>
