@@ -23,7 +23,6 @@ interface CarProps {
 
 export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
   const { isPlaying, speed } = usePlayback();
-  const planeRef = createRef<PlaneGeometry>();
   const [model, setModel] = useState<Object3D>();
   const [wheels, setWheels] = useState<Object3D[]>([]);
   const [fixRotation, setFixRotation] = useState(90);
@@ -37,8 +36,8 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
   const simulation = useMemo(() => Simulation.get(), []);
   useEffect(() => {
     const listener = () => {
-      setLeftBlindSpot(simulation.leftBlindSpot);
-      setRightBlindSpot(simulation.rightBlindSpot);
+      setLeftBlindSpot(simulation.leftBlindSpot.length > 0);
+      setRightBlindSpot(simulation.rightBlindSpot.length > 0);
     };
     simulation.on('blindSpotChange', listener);
     return () => {

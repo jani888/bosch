@@ -30,6 +30,17 @@ export class TrackedObject {
     }
     checker.addCondition(new Condition('dx', this.prediction.x, other.x, 1.5));
     checker.addCondition(new Condition('dy', this.prediction.y, other.y, 0.75));
+    if (
+      this.type !== RawObjectType.NO_DETECTION &&
+      other.objectType &&
+      other.objectType !== RawObjectType.NO_DETECTION &&
+      other.objectType !== RawObjectType.CAR_OR_TRUCK &&
+      this.type !== RawObjectType.CAR_OR_TRUCK
+    ) {
+      checker.addCondition(
+        new Condition('type', this.type, other.objectType, 0)
+      );
+    }
     checker.addCondition(
       new Condition('vx', this.lastMeasurement().vx, other.vx, 1.5)
     );

@@ -21,8 +21,8 @@ export class Simulation extends EventEmitter {
   private firstFrame = 999999999999;
   public uniqueTrackings = 0;
   private deduplicator: Deduplicator;
-  public leftBlindSpot = false;
-  public rightBlindSpot = false;
+  public leftBlindSpot: TrackedObject[] = [];
+  public rightBlindSpot: TrackedObject[] = [];
   public carSpeed = 0;
   public carX = 0;
   public carY = 0;
@@ -37,18 +37,18 @@ export class Simulation extends EventEmitter {
     const leftBlindSpot = this.trackedObjects.filter(
       (o) => o.x < 3.6 && o.x > -0.8 && o.y > 0.1 && o.y < 4.5
     );
-    if (leftBlindSpot.length > 0 && !this.leftBlindSpot) {
-      this.leftBlindSpot = true;
+    if (leftBlindSpot.length > 0 && this.leftBlindSpot.length === 0) {
+      this.leftBlindSpot = leftBlindSpot;
       this.emit('blindSpotChange');
-    } else if (leftBlindSpot.length === 0 && this.leftBlindSpot) {
-      this.leftBlindSpot = false;
+    } else if (leftBlindSpot.length === 0 && this.leftBlindSpot.length > 0) {
+      this.leftBlindSpot = [];
       this.emit('blindSpotChange');
     }
-    if (rightBlindSpot.length > 0 && !this.rightBlindSpot) {
-      this.rightBlindSpot = true;
+    if (rightBlindSpot.length > 0 && this.rightBlindSpot.length === 0) {
+      this.rightBlindSpot = rightBlindSpot;
       this.emit('blindSpotChange');
-    } else if (rightBlindSpot.length === 0 && this.rightBlindSpot) {
-      this.rightBlindSpot = false;
+    } else if (rightBlindSpot.length === 0 && this.rightBlindSpot.length > 0) {
+      this.rightBlindSpot = [];
       this.emit('blindSpotChange');
     }
   }

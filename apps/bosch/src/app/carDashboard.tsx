@@ -3,20 +3,33 @@ import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import SpeedOutlinedIcon from '@mui/icons-material/SpeedOutlined';
 import { createRef, useEffect, useMemo, useRef, useState } from 'react';
 import { Simulation } from './Simulation';
+import { TrackedObject } from './TrackedObject';
+import { ObjectTypeIcon } from './components/object-list/ObjectTypeIcon';
 
 export function CarDashboard() {
   const [audio] = useState(new Audio('assets/notification_sound.mp3'));
-  const [leftBlindSpot, setLeftBlindSpot] = useState(false);
-  const [rightBlindSpot, setRightBlindSpot] = useState(false);
+  const [leftBlindSpot, setLeftBlindSpot] = useState<TrackedObject[]>([]);
+  const [rightBlindSpot, setRightBlindSpot] = useState<TrackedObject[]>([]);
   const [speed, setSpeed] = useState(0);
   const simulation = useMemo(() => Simulation.get(), []);
   useEffect(() => {
     const listener = () => {
-      if (simulation.leftBlindSpot || simulation.rightBlindSpot) {
+      if (
+        simulation.leftBlindSpot.length > 0 ||
+        simulation.rightBlindSpot.length > 0
+      ) {
         audio?.play();
       }
-      setLeftBlindSpot(simulation.leftBlindSpot);
-      setRightBlindSpot(simulation.rightBlindSpot);
+      if (simulation.leftBlindSpot.length === 0) {
+        setTimeout(() => setLeftBlindSpot([]), 1500);
+      } else {
+        setLeftBlindSpot(simulation.leftBlindSpot);
+      }
+      if (simulation.rightBlindSpot.length === 0) {
+        setTimeout(() => setRightBlindSpot([]), 1500);
+      } else {
+        setRightBlindSpot(simulation.rightBlindSpot);
+      }
     };
     const interval = setInterval(() => {
       setSpeed(simulation.carSpeed * 3.6);
@@ -36,9 +49,12 @@ export function CarDashboard() {
         py={2}
         px={4}
       >
+        {leftBlindSpot.length > 0 && (
+          <ObjectTypeIcon type={leftBlindSpot[0].type} />
+        )}
         <WarningAmberOutlinedIcon
           fontSize="large"
-          className={leftBlindSpot ? 'warning-blink' : 'no-blink'}
+          className={leftBlindSpot.length > 0 ? 'warning-blink' : 'no-blink'}
         />
 
         <Stack alignItems="center">
@@ -53,8 +69,11 @@ export function CarDashboard() {
 
         <WarningAmberOutlinedIcon
           fontSize="large"
-          className={rightBlindSpot ? 'warning-blink' : 'no-blink'}
+          className={rightBlindSpot.length > 0 ? 'warning-blink' : 'no-blink'}
         />
+        {rightBlindSpot.length > 0 && (
+          <ObjectTypeIcon type={rightBlindSpot[0].type} />
+        )}
       </Stack>
     </>
   );
