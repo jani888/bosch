@@ -31,12 +31,6 @@ export const Truck = ({ opacity = 1, ...props }: TruckProps) => {
 
     if (truckBox instanceof Mesh) {
       truckBox.material = createMaterial(props.color, opacity);
-
-      const center = new Vector3();
-      truckBox.geometry.computeBoundingBox();
-      truckBox.geometry.boundingBox.getCenter(center);
-      truckBox.geometry.center();
-      truckBox.position.copy(center);
     }
 
     makeMaterialsTransparent(truckModel, opacity);
@@ -44,17 +38,11 @@ export const Truck = ({ opacity = 1, ...props }: TruckProps) => {
     setModel(truckModel);
   }, [rawModel]);
 
-  return (
-    <>
-      {model && (
-        <group
-          position={[props.x, 0, props.y]}
-          rotation={[0, (props.heading * Math.PI) / 180, 0]}
-          scale={[0.028, 0.028, 0.028]}
-        >
-          <primitive object={model} />
-        </group>
-      )}
-    </>
-  );
+  if (model) {
+    model.position.set(props.x, 0, props.y);
+    model.rotation.z = (props.heading * Math.PI) / 180;
+    model.scale.set(0.028, 0.028, 0.028);
+  }
+
+  return <>{model && <primitive object={model} />}</>;
 };
