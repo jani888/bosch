@@ -5,7 +5,7 @@ import { BasePlane } from './BasePlane';
 import { Lights } from './Lights';
 import { Controls } from './Controls';
 import { ACESFilmicToneMapping, sRGBEncoding, Vector3 } from 'three';
-import { Environment, Stats } from '@react-three/drei';
+import { Environment, Sky, Stats } from '@react-three/drei';
 import { Pedestrian, PedestrianMovementState } from './3d/objects/Pedestrian';
 import { Cyclist } from './3d/objects/Cyclist';
 import { Car } from './3d/objects/Car/Car';
@@ -15,6 +15,7 @@ import { NormalizedObjectData, RawObjectType } from '@bosch/api-interfaces';
 import { MotorBike } from './3d/objects/MotorBike';
 import { TruckOrCar } from './3d/objects/TruckOrCar';
 import { Simulation } from '../Simulation';
+import { Road } from './3d/Road';
 
 export enum ObjectType {
   Unknown = 'Unknown',
@@ -41,9 +42,14 @@ export function View3D({
   onSelect(id: string): void;
 }): ReactElement {
   const [data, setData] = useState<TrackedObject[]>([]);
+  const [carPosition, setCarPosition] = useState({ x: 0, y: 0 });
   useEffect(() => {
     const listener = () => {
       setData(Simulation.get().trackedObjects);
+      setCarPosition({
+        x: Simulation.get().carX,
+        y: Simulation.get().carY,
+      });
     };
     Simulation.get().on('step', listener);
     return () => {
@@ -65,14 +71,10 @@ export function View3D({
     >
       <scene>
         <Stats />
+        <Sky sunPosition={[7, 5, 1]} />
+        <fog attach="fog" args={['white', 0, 26]} />
 
-        <fog color={0x333333} near={80} far={100} />
-
-        <Environment
-          background={true} // Whether to affect scene.background
-          files={'assets/venice_sunset_1k.hdr'}
-          path={'/'}
-        />
+        <Environment files={'assets/venice_sunset_1k.hdr'} path={'/'} />
 
         <Lights />
 
@@ -97,7 +99,7 @@ export function View3D({
             ))}
         </group>
 
-        <BasePlane />
+        <BasePlane carPosition={carPosition} />
         <Controls target={selectedObject} />
       </scene>
     </Canvas>
@@ -134,8 +136,8 @@ function TrackedObjectItem({
   selected: boolean;
   onClick?: () => void;
 }) {
-  const x = object.prediction.x;
-  const y = object.prediction.y;
+  const x = object.x;
+  const y = object.y;
   if (object.type === RawObjectType.BICYCLE) {
     return (
       <>

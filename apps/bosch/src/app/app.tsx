@@ -81,10 +81,9 @@ export const App = () => {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [selectedObjectId, setSelectedObjectId] = useState('');
   const [videoVisible, setVideoVisible] = useState(true);
-  const trackedObjectList = Simulation.get().trackedObjects;
   const [dataset, setDataset] = useState(DatasetType.DATASET_3);
   const [length, setLength] = useState(0);
-  const [userView, setUserView] = useState(userViews[1].value);
+  const [userView, setUserView] = useState(userViews[0].value);
   const [showBlindSpots, setShowBlindSpots] = useState(false);
   const [showSensors, setShowSensors] = useState(false);
 

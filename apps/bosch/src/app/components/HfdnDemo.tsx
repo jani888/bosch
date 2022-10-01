@@ -65,11 +65,17 @@ export const HfdnDemo = (props: { isPlaying: boolean }) => {
           isPlaying={props.isPlaying}
         />
 
-        <Road laneWidth={4} lanes={2} length={50} rotation={90} />
+        <Road
+          centerLane={1}
+          laneWidth={4}
+          lanes={2}
+          length={50}
+          rotation={90}
+        />
 
-        <Road laneWidth={4} lanes={2} length={50} rotation={0} />
+        <Road centerLane={1} laneWidth={4} lanes={2} length={50} rotation={0} />
 
-        <BasePlane />
+        <BasePlane carPosition={{ x: 0, y: 0 }} />
         <Controls />
       </scene>
     </Canvas>

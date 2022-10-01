@@ -7,6 +7,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { usePlayback } from '../../../../hooks/usePlayback';
 import { Plane, useGLTF } from '@react-three/drei';
 import { getCarSensors } from './GetCarSensors';
+import { Simulation } from '../../../../Simulation';
 
 interface CarProps {
   x: number;
@@ -29,6 +30,20 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
   const rawModel = useGLTF('assets/ferrari.glb', true);
 
   const sensors = useMemo(() => getCarSensors(), []);
+
+  const [leftBlindSpot, setLeftBlindSpot] = useState(false);
+  const [rightBlindSpot, setRightBlindSpot] = useState(false);
+  const simulation = useMemo(() => Simulation.get(), []);
+  useEffect(() => {
+    const listener = () => {
+      setLeftBlindSpot(simulation.leftBlindSpot);
+      setRightBlindSpot(simulation.rightBlindSpot);
+    };
+    simulation.on('blindSpotChange', listener);
+    return () => {
+      simulation.off('blindSpotChange', listener);
+    };
+  }, [simulation]);
 
   useThree(({ scene }) => {
     sensors.forEach((sensor) => {
@@ -83,17 +98,27 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
               <group position={[0, 0, 0]}>
                 <Plane
                   rotation={[-Math.PI / 2, 0, 0]}
-                  position={[2, 0.5, 0]}
-                  args={[1.5, 2.3]}
+                  position={[2.8, 0.5, 0.5]}
+                  args={[3, 3]}
                 >
-                  <meshStandardMaterial attach="material" color="red" />
+                  <meshStandardMaterial
+                    attach="material"
+                    color="red"
+                    transparent={true}
+                    opacity={rightBlindSpot ? 1 : 0.3}
+                  />
                 </Plane>
                 <Plane
                   rotation={[-Math.PI / 2, 0, 0]}
-                  position={[-2, 0.5, 0]}
-                  args={[1.5, 2.3]}
+                  position={[-2.8, 0.5, 0.5]}
+                  args={[3, 3]}
                 >
-                  <meshStandardMaterial attach="material" color="red" />
+                  <meshStandardMaterial
+                    attach="material"
+                    color="red"
+                    transparent={true}
+                    opacity={leftBlindSpot ? 1 : 0.3}
+                  />
                 </Plane>
               </group>
             )}

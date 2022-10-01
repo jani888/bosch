@@ -28,24 +28,13 @@ export class TrackedObject {
     if (this.z > 0.5 && (other.z ?? 0) > 0.5) {
       return Math.sqrt(d2) < Math.max(this.z, 2);
     }
-    checker.addCondition(
-      new Condition('type', this.type, other.objectType ?? 0, 0)
-    );
-    checker.addCondition(
-      new Condition(
-        'dx',
-        this.prediction.x,
-        other.x,
-        this.type === RawObjectType.TRUCK ? 7 : 1.5
-      )
-    );
-    checker.addCondition(new Condition('dx', this.prediction.x, other.x, 15));
-    checker.addCondition(new Condition('dy', this.prediction.y, other.y, 3));
+    checker.addCondition(new Condition('dx', this.prediction.x, other.x, 1.5));
+    checker.addCondition(new Condition('dy', this.prediction.y, other.y, 0.75));
     checker.addCondition(
       new Condition('vx', this.lastMeasurement().vx, other.vx, 1.5)
     );
     checker.addCondition(
-      new Condition('vy', this.lastMeasurement().vy, other.vy, 0.75)
+      new Condition('vx', this.lastMeasurement().vy, other.vy, 0.75)
     );
     return checker.checkConditions(1);
     /*if (other.x === this.x && other.y === this.y) {
@@ -106,8 +95,8 @@ export class TrackedObject {
 
       this.measurements.push({
         ...measurement,
-        vx: movingAverage.vx,
-        vy: movingAverage.vy,
+        //vx: movingAverage.vx,
+        //vy: movingAverage.vy,
         actualTimestamp,
         itemType: 'measurement',
       });

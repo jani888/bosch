@@ -1,17 +1,20 @@
 import { Stack, Typography } from '@mui/material';
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import SpeedOutlinedIcon from '@mui/icons-material/SpeedOutlined';
-import { useEffect, useMemo, useState } from 'react';
+import { createRef, useEffect, useMemo, useRef, useState } from 'react';
 import { Simulation } from './Simulation';
 
 export function CarDashboard() {
+  const [audio] = useState(new Audio('assets/notification_sound.mp3'));
   const [leftBlindSpot, setLeftBlindSpot] = useState(false);
   const [rightBlindSpot, setRightBlindSpot] = useState(false);
   const [speed, setSpeed] = useState(0);
   const simulation = useMemo(() => Simulation.get(), []);
   useEffect(() => {
     const listener = () => {
-      console.log('blindSpotChange');
+      if (simulation.leftBlindSpot || simulation.rightBlindSpot) {
+        audio?.play();
+      }
       setLeftBlindSpot(simulation.leftBlindSpot);
       setRightBlindSpot(simulation.rightBlindSpot);
     };
@@ -25,32 +28,34 @@ export function CarDashboard() {
     };
   }, [simulation]);
   return (
-    <Stack
-      direction="row"
-      justifyContent="space-evenly"
-      alignItems="center"
-      py={2}
-      px={4}
-    >
-      <WarningAmberOutlinedIcon
-        fontSize="large"
-        className={leftBlindSpot ? 'warning-blink' : 'no-blink'}
-      />
+    <>
+      <Stack
+        direction="row"
+        justifyContent="space-evenly"
+        alignItems="center"
+        py={2}
+        px={4}
+      >
+        <WarningAmberOutlinedIcon
+          fontSize="large"
+          className={leftBlindSpot ? 'warning-blink' : 'no-blink'}
+        />
 
-      <Stack alignItems="center">
-        <SpeedOutlinedIcon sx={{ fontSize: 15, color: 'grey.600' }} />
-        <Typography color="grey.700" fontSize={16} fontWeight={700} px={2}>
-          {speed.toFixed(0)} km/h
-        </Typography>
-        <Typography variant="caption" fontSize={8}>
-          SPEED
-        </Typography>
+        <Stack alignItems="center">
+          <SpeedOutlinedIcon sx={{ fontSize: 15, color: 'grey.600' }} />
+          <Typography color="grey.700" fontSize={16} fontWeight={700} px={2}>
+            {speed.toFixed(0)} km/h
+          </Typography>
+          <Typography variant="caption" fontSize={8}>
+            SPEED
+          </Typography>
+        </Stack>
+
+        <WarningAmberOutlinedIcon
+          fontSize="large"
+          className={rightBlindSpot ? 'warning-blink' : 'no-blink'}
+        />
       </Stack>
-
-      <WarningAmberOutlinedIcon
-        fontSize="large"
-        className={rightBlindSpot ? 'warning-blink' : 'no-blink'}
-      />
-    </Stack>
+    </>
   );
 }

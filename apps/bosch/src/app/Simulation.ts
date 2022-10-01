@@ -24,13 +24,16 @@ export class Simulation extends EventEmitter {
   public leftBlindSpot = false;
   public rightBlindSpot = false;
   public carSpeed = 0;
+  public carX = 0;
+  public carY = 0;
+  private carChangeTimestamp = 0;
 
   public blindSpotDetection() {
     const rightBlindSpot = this.trackedObjects.filter(
-      (o) => o.x < 0.8 && o.x > -0.8 && o.y < -0.1 && o.y > -4.5
+      (o) => o.x < 3.6 && o.x > -0.8 && o.y < -0.1 && o.y > -4.5
     );
     const leftBlindSpot = this.trackedObjects.filter(
-      (o) => o.x < 0.8 && o.x > -0.8 && o.y > 0.1 && o.y < 4.5
+      (o) => o.x < 3.6 && o.x > -0.8 && o.y > 0.1 && o.y < 4.5
     );
     if (leftBlindSpot.length > 0 && !this.leftBlindSpot) {
       this.leftBlindSpot = true;
@@ -165,6 +168,11 @@ export class Simulation extends EventEmitter {
       this.carSpeed = Math.sqrt(
         pendingMeasurements[0].car.vx ** 2 + pendingMeasurements[0].car.vy ** 2
       );
+      const dt =
+        (pendingMeasurements[0].timestamp - this.carChangeTimestamp) / 100;
+      this.carX = this.carX + pendingMeasurements[0].car.vx * dt;
+      this.carY = this.carY + pendingMeasurements[0].car.vy * dt;
+      this.carChangeTimestamp = pendingMeasurements[0].timestamp;
     }
     this.updatePredictions(timestamp);
     const deduped = pendingMeasurements.map(this.deduplicator.deduplicate);
