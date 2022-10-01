@@ -11,6 +11,7 @@ import {
 } from 'three';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import { useGLTF } from '@react-three/drei';
 
 interface PedestrianProps {
   x: number;
@@ -18,6 +19,7 @@ interface PedestrianProps {
   heading: number;
   color?: string;
   opacity?: number;
+  onClick?: () => void;
   //TODO: MovementState NOT implemented yet
   movementState?: PedestrianMovementState;
 }
@@ -70,35 +72,20 @@ export const Pedestrian = ({
     useState<PedestrianMovementState>(movementState);
   const [animations, setAnimations] = useState<AnimationClip[]>([]);
 
-  const loader = useMemo(() => {
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('assets/draco/gltf/');
-
-    const loader = new GLTFLoader();
-    loader.setDRACOLoader(dracoLoader);
-    return loader;
-  }, []);
+  const rawModel = useGLTF('/assets/Xbot.glb', true);
 
   useEffect(() => {
-    loader.load('/assets/Xbot.glb', (gltf) => {
-      const modelData = gltf.scene;
+    const modelData = SkeletonUtils.clone(rawModel.scene);
 
-      modelData.traverse((object) => {
-        if (object instanceof Mesh) {
-          object.castShadow = true;
-        }
-      });
+    colorPedestrian(color, opacity, modelData);
 
-      colorPedestrian(color, opacity, modelData);
+    const mixer = new AnimationMixer(modelData);
+    mixer.clipAction(rawModel.animations[movementState]).play();
 
-      const mixer = new AnimationMixer(gltf.scene);
-      mixer.clipAction(gltf.animations[movementState]).play();
-
-      setMixer(mixer);
-      setModel(gltf.scene);
-      setAnimations(gltf.animations);
-    });
-  }, [loader, color, opacity, movementState]);
+    setMixer(mixer);
+    setModel(modelData);
+    setAnimations(rawModel.animations);
+  }, [color, opacity, movementState]);
 
   useEffect(() => {
     if (mixer) {
@@ -118,8 +105,9 @@ export const Pedestrian = ({
     <>
       {model && (
         <group
+          onClick={props.onClick}
           position={[props.x, 0, props.y]}
-          rotation={[0, ((props.heading - 90) * Math.PI) / 180, 0]}
+          rotation={[0, ((props.heading + 90) * Math.PI) / 180, 0]}
         >
           <primitive object={model} />
         </group>

@@ -1,15 +1,21 @@
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import React from 'react';
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
+import { TrackedObject } from '../TrackedObject';
+import { Vector3 } from 'three';
 
-export function Controls() {
+export function Controls({
+  target,
+}: {
+  target?: TrackedObject;
+}): React.ReactElement {
   return (
     <>
-      <PerspectiveCamera position={[2, 2, 2]} makeDefault />
+      <PerspectiveCamera far={100} position={[-4, 1.8, -3]} makeDefault />
       <OrbitControls
         enableDamping={true}
         maxPolarAngle={(80 / 180) * Math.PI}
         minDistance={5}
-        maxDistance={80}
+        maxDistance={40}
       />
     </>
   );

@@ -32,7 +32,10 @@ export function ObjectListItem(props: {
     <>
       <Card
         variant="outlined"
-        sx={{ borderColor: props.selected ? 'primary.main' : '' }}
+        sx={{
+          borderColor: props.selected ? 'primary.main' : '',
+          flexShrink: 0,
+        }}
         onClick={() => props.onSelect(props.trackedObject.uuid)}
       >
         <Box component="div" sx={{ py: 1, px: 2 }}>
@@ -83,35 +86,51 @@ export function ObjectListItem(props: {
         onClose={() => setDataSheetDialogVisible(false)}
       >
         <DialogTitle>Latest measurements and predictions</DialogTitle>
-        <DialogContent>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Timestamp</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>x</TableCell>
-                <TableCell>Y</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {props.trackedObject.history.map((measurement) => (
-                <TableRow
-                  sx={{
-                    backgroundColor:
-                      measurement.itemType === 'prediction'
-                        ? 'secondary.light'
-                        : 'primary.light',
-                  }}
-                >
-                  <TableCell>{measurement.timestamp.toFixed(0)}</TableCell>
-                  <TableCell>{measurement.itemType}</TableCell>
-                  <TableCell>{measurement.x.toFixed(2)}</TableCell>
-                  <TableCell>{measurement.y.toFixed(2)}</TableCell>
+        {dataSheetDialogVisible && (
+          <DialogContent>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Timestamp</TableCell>
+                  <TableCell>Added time</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell>x</TableCell>
+                  <TableCell>Y</TableCell>
+                  <TableCell>vx</TableCell>
+                  <TableCell>vy</TableCell>
+                  <TableCell>ax</TableCell>
+                  <TableCell>ay</TableCell>
+                  <TableCell>Raw</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </DialogContent>
+              </TableHead>
+              <TableBody>
+                {props.trackedObject.history.map((measurement) => (
+                  <TableRow
+                    sx={{
+                      backgroundColor:
+                        measurement.itemType === 'prediction'
+                          ? 'secondary.light'
+                          : 'primary.light',
+                    }}
+                  >
+                    <TableCell>{measurement.timestamp.toFixed(0)}</TableCell>
+                    <TableCell>
+                      {measurement.actualTimestamp.toFixed(0)}
+                    </TableCell>
+                    <TableCell>{measurement.itemType}</TableCell>
+                    <TableCell>{measurement.x.toFixed(2)}</TableCell>
+                    <TableCell>{measurement.y.toFixed(2)}</TableCell>
+                    <TableCell>{measurement.vx.toFixed(2)}</TableCell>
+                    <TableCell>{measurement.vy.toFixed(2)}</TableCell>
+                    <TableCell>{measurement.ax?.toFixed(2)}</TableCell>
+                    <TableCell>{measurement.ay?.toFixed(2)}</TableCell>
+                    <TableCell>{JSON.stringify(measurement.raw)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </DialogContent>
+        )}
         <DialogActions>
           <Button onClick={() => setDataSheetDialogVisible(false)}>OK</Button>
         </DialogActions>

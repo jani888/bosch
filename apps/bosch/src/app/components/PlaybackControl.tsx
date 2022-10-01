@@ -10,31 +10,52 @@ import {
   Menu,
   MenuItem,
   Stack,
+  Typography,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Simulation } from '../Simulation';
+import SlowMotionVideoIcon from '@mui/icons-material/SlowMotionVideo';
 
 export function PlaybackControl({
-  isPlaying,
   onTogglePlayback,
-  speed,
   onSpeedChange,
-  length,
-  current,
-  buffer,
 }: {
   speed: number;
   isPlaying: boolean;
   onTogglePlayback: () => void;
   onSpeedChange: (speed: number) => void;
   length: number;
-  current: number;
-  buffer: number;
 }) {
+  const [current, setCurrent] = useState<number>(0);
+  const [buffer, setBuffer] = useState<number>(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
+  const [length, setLength] = useState(0);
+
+  useEffect(() => {
+    const simulation = Simulation.get();
+    simulation.on('playingChanged', (playing: boolean) => {
+      setIsPlaying(playing);
+    });
+    simulation.on('playbackSpeedChanged', (speed: number) => {
+      setSpeed(speed);
+    });
+    simulation.on('lengthChanged', (length: number) => {
+      setLength(length);
+    });
+    simulation.on('chunkLoaded', () => {
+      setBuffer(simulation.bufferTimestamp);
+    });
+    simulation.on('step', () => {
+      setCurrent(simulation.currentTimestamp);
+    });
+  }, []);
   const popupState = usePopupState({ variant: 'popover', popupId: 'demoMenu' });
   return (
     <Stack
+      id="playback-control"
       direction="row"
       p={1}
       sx={{
@@ -45,6 +66,8 @@ export function PlaybackControl({
       }}
     >
       <Button
+        startIcon={<SlowMotionVideoIcon />}
+        id="speed-selector"
         size="small"
         variant="text"
         color="primary"
@@ -56,6 +79,22 @@ export function PlaybackControl({
         <MenuItem
           onClick={() => {
             popupState.close();
+            onSpeedChange(0.1);
+          }}
+        >
+          0.1x
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            popupState.close();
+            onSpeedChange(0.5);
+          }}
+        >
+          0.5x
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            popupState.close();
             onSpeedChange(1);
           }}
         >
@@ -64,23 +103,23 @@ export function PlaybackControl({
         <MenuItem
           onClick={() => {
             popupState.close();
-            onSpeedChange(2);
+            onSpeedChange(1.5);
           }}
         >
-          2x
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            popupState.close();
-            onSpeedChange(3);
-          }}
-        >
-          3x
+          1.5x
         </MenuItem>
       </Menu>
-      <IconButton sx={{ mr: 2 }} color="primary" onClick={onTogglePlayback}>
+      <IconButton
+        id="play-button"
+        sx={{ mr: 2 }}
+        color="primary"
+        onClick={onTogglePlayback}
+      >
         {!isPlaying ? <PlayArrowIcon /> : <PauseIcon />}
       </IconButton>
+      <Typography mr={2} color="primary">
+        {(current / 100).toFixed(2)}s
+      </Typography>
       <LinearProgress
         sx={{ width: '100%' }}
         value={(current / length) * 100}

@@ -3,8 +3,12 @@ import { MongoClient } from 'mongodb';
 import * as multer from 'multer';
 
 //Connect to MongoDB using Mongoose
-import { getDatasetInfo } from './dataset';
-import { ApiResponse, RawMeasurement } from '@bosch/api-interfaces';
+import {
+  ApiResponse,
+  RawMeasurement,
+  RawObjectData,
+  SensorType,
+} from '@bosch/api-interfaces';
 import { readFileSync } from 'fs';
 
 const upload = multer({ dest: 'uploads/' });
@@ -16,6 +20,69 @@ async function connectToMongo() {
   return mongo.db('bosch');
 }
 
+function denormDistance(v: number) {
+  return v / 128;
+}
+
+function denormSpeed(v: number) {
+  return v / 256;
+}
+
+function denormAcceleration(v: number) {
+  return v / 2048;
+}
+
+function denormProbability(v: number) {
+  return v / 128;
+}
+
+function parseObjects(rest: string[]) {
+  const objects: RawObjectData[] = [];
+  for (let i = 0; i < 15; i++) {
+    objects.push({
+      sensorType: SensorType.CAMERA,
+      x: denormDistance(Number(rest[i])),
+      y: denormDistance(Number(rest[i + 15])),
+      objectType: Number(rest[i + 30]),
+      vx: denormSpeed(Number(rest[i + 45])),
+      vy: denormSpeed(Number(rest[i + 60])),
+    });
+  }
+  for (let measurementIdx = 0; measurementIdx < 10; measurementIdx++) {
+    for (let sensorIdx = 0; sensorIdx < 4; sensorIdx++) {
+      objects.push({
+        sensorId: sensorIdx,
+        sensorType: SensorType.RADAR,
+        ax: denormAcceleration(
+          Number(rest[79 + measurementIdx * 4 + sensorIdx])
+        ),
+        ay: denormAcceleration(
+          Number(rest[79 + 40 + measurementIdx * 4 + sensorIdx])
+        ),
+        x: denormDistance(
+          Number(rest[79 + 80 + measurementIdx * 4 + sensorIdx])
+        ),
+        y: denormDistance(
+          Number(rest[79 + 120 + measurementIdx * 4 + sensorIdx])
+        ),
+        z: denormDistance(
+          Number(rest[79 + 120 + measurementIdx * 4 + sensorIdx])
+        ),
+        obstacleProbability: denormDistance(
+          Number(rest[79 + 200 + measurementIdx * 4 + sensorIdx])
+        ),
+        vx: denormSpeed(
+          Number(rest[79 + 240 + measurementIdx * 4 + sensorIdx])
+        ),
+        vy: denormSpeed(
+          Number(rest[79 + 280 + measurementIdx * 4 + sensorIdx])
+        ),
+      });
+    }
+  }
+  return objects;
+}
+
 async function main() {
   const app = express();
   const mongo = await connectToMongo();
@@ -25,37 +92,41 @@ async function main() {
     if (!dataset) {
       res.status(400).send('Missing dataset parameter');
     }
-    const data = await mongo
-      .collection('datasets')
-      .findOne({ name: dataset + '-dataset' });
+    const data = await mongo.collection('datasets').findOne({ name: dataset });
     res.send(data);
   });
 
   app.get('/api/data', async (req, res) => {
     const dataset = req.query.dataset as string;
-    const chunk = Number(req.query.chunk as string);
+    const cursor = Number(req.query.cursor as string);
 
     if (!dataset) {
       res.status(400).send('Missing dataset parameter');
       return;
     }
 
-    if (chunk === undefined || Number.isNaN(chunk)) {
-      res.status(400).send('Missing chunk parameter');
+    if (cursor === undefined || Number.isNaN(cursor)) {
+      res.status(400).send('Missing cursor parameter');
       return;
     }
 
     const data = await mongo
-      .collection(dataset + '-dataset')
-      .find()
+      .collection<RawMeasurement>(dataset)
+      .find({
+        timestamp: {
+          $gt: cursor,
+        },
+      })
+      .limit(500)
       .toArray();
     const response = {
-      data: data.slice(chunk * 1000, 1000) as unknown as RawMeasurement[],
+      data: data as unknown as RawMeasurement[],
     } as ApiResponse;
     res.send(response);
   });
 
   app.post('/api/data', upload.single('file'), async (req, res) => {
+    const TIMESTAMP_MULTIPLIER = 100;
     const dataset = req.body.dataset;
     if (!dataset) {
       res.status(400).send('Missing dataset parameter');
@@ -64,14 +135,17 @@ async function main() {
     const path = (req as any).file.path;
     const content = readFileSync(path, 'utf-8');
     const lines = content.split('\n');
-    const data = lines.map((line) => {
-      const [timestamp] = line.split(',');
+    const firstTimestamp = Math.floor(
+      Number(lines[1].split(',')[0]) * TIMESTAMP_MULTIPLIER
+    );
+    const data = lines.slice(1, lines.length - 1).map((line) => {
+      const [timestamp, cameraTimestamp, ...rest] = line.split(',');
       // TODO: transform the row into a RawMeasurement
       const measurement: RawMeasurement = {
-        a: 0,
-        b: 0,
         consumed: false,
-        timestamp: 0,
+        timestamp:
+          Math.floor(Number(timestamp) * TIMESTAMP_MULTIPLIER) - firstTimestamp,
+        objects: parseObjects(rest),
       };
       return measurement;
     });
@@ -81,6 +155,46 @@ async function main() {
       name: dataset,
       length: data.length,
       lastTimestamp: data[data.length - 1].timestamp,
+    });
+    res.send('OK');
+  });
+
+  app.post('/api/data/velocity', upload.single('file'), async (req, res) => {
+    const TIMESTAMP_MULTIPLIER = 100;
+    const dataset = req.body.dataset;
+    if (!dataset) {
+      res.status(400).send('Missing dataset parameter');
+      return;
+    }
+    const path = (req as any).file.path;
+    const content = readFileSync(path, 'utf-8');
+    const lines = content.split('\n');
+    const firstTimestamp = Math.floor(
+      Number(lines[1].split(',')[0]) * TIMESTAMP_MULTIPLIER
+    );
+    const collection = mongo.collection<RawMeasurement>(dataset as string);
+    lines.slice(1, lines.length - 1).forEach((line) => {
+      const [timestamp, ax, ay, _, __, vx, vy] = line.split(',');
+      // TODO: transform the row into a RawMeasurement
+      collection.updateOne(
+        {
+          timestamp: {
+            $eq:
+              Math.floor(Number(timestamp) * TIMESTAMP_MULTIPLIER) -
+              firstTimestamp,
+          },
+        },
+        {
+          $set: {
+            car: {
+              vx: denormSpeed(Number(vx)),
+              vy: denormSpeed(Number(vy)),
+              ax: denormAcceleration(Number(ax)),
+              ay: denormAcceleration(Number(ay)),
+            },
+          },
+        }
+      );
     });
     res.send('OK');
   });

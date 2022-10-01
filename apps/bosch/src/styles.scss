@@ -1,1 +1,76 @@
-/* You can add global styles to this file, and also import other style files */
+/* Your styles goes here. */
+
+.no-blink{
+  color: #ccc;
+}
+
+.blink {
+  animation: blink 0.5s linear infinite alternate;
+}
+
+.warning-blink {
+  animation: warning 0.8s linear infinite alternate;
+}
+
+@keyframes blink {
+  0% {
+    color: #ccc;
+  }
+  50% {
+    color: #ccc;
+  }
+  51% {
+    color: green;
+  }
+  100% {
+    color: green;
+  }
+}
+
+@keyframes warning {
+  0% {
+    color: #ccc;
+  }
+  30% {
+    color: #ccc;
+  }
+  31% {
+    color: darkorange;
+  }
+  40% {
+    color: darkorange;
+  }
+  41% {
+    color: #ccc;
+  }
+  60% {
+    color: #ccc;
+  }
+  61% {
+    color: darkorange;
+  }
+  80% {
+    color: darkorange;
+  }
+  81% {
+    color: #ccc;
+  }
+  100% {
+    color: #ccc;
+  }
+}
+
+.stats {
+  top: 86px !important;
+}
+
+#walktour-tooltip-container{
+  outline: none;
+}
+
+#walktour-tooltip-container>div{
+  width: 400px !important;
+  max-width: 400px !important;
+  padding: 24px !important;
+  border-radius: 16px !important;
+}
