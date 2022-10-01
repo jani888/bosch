@@ -36,7 +36,6 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
   });
 
   useEffect(() => {
-    console.log(rawModel);
     const carModel = rawModel.scene.clone().children[0];
     if (!carModel) {
       console.error('No car model found');

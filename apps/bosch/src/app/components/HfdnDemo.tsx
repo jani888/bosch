@@ -1,22 +1,17 @@
 // High frequency data network 3D demo
-import { ACESFilmicToneMapping, sRGBEncoding, Vector3 } from 'three';
+import { ACESFilmicToneMapping, sRGBEncoding } from 'three';
 import { Environment, Stats } from '@react-three/drei';
 import { Lights } from './Lights';
 import { BasePlane } from './BasePlane';
 import { Controls } from './Controls';
 import { Canvas } from '@react-three/fiber';
-import React, { useState } from 'react';
+import React from 'react';
 import { Line3D } from './3d/Line3D';
 import { Car } from './3d/objects/Car/Car';
-import { Cyclist } from './3d/objects/Cyclist';
-import { MotorBike } from './3d/objects/MotorBike';
 import { Pedestrian } from './3d/objects/Pedestrian';
-import { Truck } from './3d/objects/Truck';
+import { Road } from './3d/Road';
 
-export const HfdnDemo = () => {
-  const [carPos, setCarPos] = useState(new Vector3(0, 0, 0));
-  const [carRot, setCarRot] = useState(0);
-
+export const HfdnDemo = (props: { isPlaying: boolean }) => {
   return (
     <Canvas
       style={{ height: '100%', width: '100%' }}
@@ -43,15 +38,36 @@ export const HfdnDemo = () => {
         <Lights />
 
         <Line3D
+          color={'orange'}
+          points={[
+            { x: 2, y: 2 },
+            { x: 2, y: 6 },
+            { x: 2, y: 25 },
+            { x: 25, y: 25 },
+            { x: 25, y: -2 },
+            { x: 8, y: -2 },
+            { x: 4, y: -2 },
+          ]}
+          startOffset={0.8}
+          component={Car}
+          isPlaying={props.isPlaying}
+        />
+
+        <Line3D
           color={'blue'}
           points={[
-            { x: 0, y: 0 },
-            { x: 0, y: 10 },
-            { x: 10, y: 10 },
-            { x: 10, y: 0 },
+            { x: 10, y: 8 },
+            { x: 10, y: 9 },
+            { x: -2, y: 9 },
+            { x: -2, y: 8 },
           ]}
-          component={Car}
+          component={Pedestrian}
+          isPlaying={props.isPlaying}
         />
+
+        <Road laneWidth={4} lanes={2} length={50} rotation={90} />
+
+        <Road laneWidth={4} lanes={2} length={50} rotation={0} />
 
         <BasePlane />
         <Controls />
