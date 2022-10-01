@@ -233,7 +233,7 @@ export const App = () => {
                   </Stack>
                 </>
               )}
-              {userView === 'hfdn-demo' && <HfdnDemo />}
+              {userView === 'hfdn-demo' && <HfdnDemo isPlaying={true} />}
             </Box>
             <PlaybackControl
               length={length}

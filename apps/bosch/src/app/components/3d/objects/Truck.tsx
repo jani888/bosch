@@ -5,6 +5,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { createMaterial, makeMaterialsTransparent } from './Custom3dHelpers';
 import { useGLTF } from '@react-three/drei';
 import { raw } from 'express';
+import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils';
 
 interface TruckProps {
   x: number;
@@ -20,13 +21,11 @@ export const Truck = ({ opacity = 1, ...props }: TruckProps) => {
   const rawModel = useGLTF('/assets/truck.glb', true);
 
   useEffect(() => {
-    const truckModel = rawModel.scene.clone().children[0];
+    const truckModel = SkeletonUtils.clone(rawModel.scene).children[0];
     if (!truckModel) {
       console.error('No car model found');
       return;
     }
-
-    console.log(truckModel);
 
     const truckBox = truckModel.getObjectByName('hood_body_0');
 
