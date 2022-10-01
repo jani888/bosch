@@ -126,8 +126,8 @@ function TrackedObjectItem({
           />
         )}
         <Cyclist
-          x={object.prediction.x}
-          y={object.prediction.y}
+          x={object.x}
+          y={object.y}
           heading={360}
           color={selected ? 'blue' : 'grey'}
         />
@@ -145,8 +145,8 @@ function TrackedObjectItem({
         )}
         <UnknownObject
           onClick={onClick}
-          x={object.prediction.x}
-          y={object.prediction.y}
+          x={object.x}
+          y={object.y}
           color={selected ? 'blue' : 'green'}
         />
       </>

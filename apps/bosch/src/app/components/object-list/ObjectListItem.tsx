@@ -47,7 +47,7 @@ export function ObjectListItem(props: {
                 fontSize={10}
                 color="grey.500"
               >
-                {props.trackedObject.uuid} - {props.trackedObject.ttl}
+                {props.trackedObject.uuid}
               </Typography>
               <Stack direction="row" alignItems="center">
                 <PlaceIcon sx={{ width: 14, height: 14, color: 'grey.500' }} />

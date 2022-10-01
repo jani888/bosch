@@ -19,12 +19,20 @@ export class TrackedObject {
     const dx = this.prediction.x - other.x;
     const dy = this.prediction.y - other.y;
     const d2 = dx * dx + dy * dy;
+
+    return Math.sqrt(d2) < 0.8 ? 1 : 0;
+    /*if (other.x === this.x && other.y === this.y) {
+      return 9999999;
+    }
+    const dx = this.prediction.x - other.x;
+    const dy = this.prediction.y - other.y;
+    const d2 = dx * dx + dy * dy;
     const d =
       Math.sqrt(
         this.prediction.x * this.prediction.x +
           this.prediction.y * this.prediction.y
-      ) / 2;
-    return (1 / (1 + d2)) * (1 + d / 100);
+      ) / 1.75;
+    return (1 / (1 + d2)) * (1 + d / 100);*/
   }
 
   addMeasurement(measurement: NormalizedObjectData, actualTimestamp: number) {

@@ -160,7 +160,8 @@ export class Simulation extends EventEmitter {
           to,
           score: to.compare(measurement),
         }));
-        const bestMatch = scores.sort((a, b) => a.score - b.score).pop();
+        scores.sort((a, b) => b.score - a.score);
+        const bestMatch = scores[0];
         if (bestMatch && bestMatch.score > 0.8) {
           bestMatch.to.addMeasurement(measurement, timestamp);
         } else {
@@ -199,6 +200,6 @@ export class Simulation extends EventEmitter {
     const dvy = Math.pow(deduplicatedObject.vy - object.vy, 2);
     const velocityDiff = Math.sqrt(dvx + dvy);
     //TODO: use the rest of the measurements to enhance the result
-    return distanceDiff < 0.1 && velocityDiff < 1; // 25cm és 7.2km/h-nál kissebb a különbség
+    return distanceDiff < 0.5 && velocityDiff < 2; // 25cm és 7.2km/h-nál kissebb a különbség
   };
 }
