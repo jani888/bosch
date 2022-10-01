@@ -7,7 +7,6 @@ import {
   Divider,
   FormControl,
   FormControlLabel,
-  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -30,6 +29,7 @@ import { CarDashboard } from './carDashboard';
 import './app.module.scss';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import { Walktour } from 'walktour';
+import { WalktourFooter } from './components/tutorial/WalktourFooter';
 
 export const PlaybackContext = React.createContext<{
   isPlaying: boolean;
@@ -117,22 +117,11 @@ export const App = () => {
           </Typography>
         )}
         customFooterRenderer={(tourLogic) => (
-          <Stack justifyContent="space-between" direction="row" mt={2}>
-            {tourLogic?.stepContent.selector === '#object-list' ? (
-              <Button variant="contained" onClick={() => tourLogic?.close()}>
-                Okay, got it
-              </Button>
-            ) : (
-              <>
-                <Button variant="text" onClick={() => tourLogic?.close()}>
-                  Skip tutorial
-                </Button>
-                <Button variant="contained" onClick={() => tourLogic?.next()}>
-                  Next
-                </Button>
-              </>
-            )}
-          </Stack>
+          <WalktourFooter
+            tourLogic={tourLogic}
+            onSkip={() => tourLogic?.close()}
+            onNext={() => tourLogic?.next()}
+          />
         )}
         steps={[
           {
@@ -301,7 +290,7 @@ export const App = () => {
                   >
                     <ReactPlayer
                       className="react-player"
-                      url={`http://anton.sch.bme.hu:3000/${
+                      url={`https://anton.sch.bme.hu/media/${
                         videos.find((v) => v.dataset === dataset)?.front
                       }`}
                       onError={(e) => console.error(e)}
@@ -312,7 +301,7 @@ export const App = () => {
                     />
                     <ReactPlayer
                       className="react-player"
-                      url={`http://anton.sch.bme.hu:3000/${
+                      url={`https://anton.sch.bme.hu/media/${
                         videos.find((v) => v.dataset === dataset)?.rear
                       }`}
                       onError={(e) => console.error(e)}

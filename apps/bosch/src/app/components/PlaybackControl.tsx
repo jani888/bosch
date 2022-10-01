@@ -79,22 +79,6 @@ export function PlaybackControl({
         <MenuItem
           onClick={() => {
             popupState.close();
-            onSpeedChange(0.001);
-          }}
-        >
-          0.001x
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            popupState.close();
-            onSpeedChange(0.01);
-          }}
-        >
-          0.01x
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            popupState.close();
             onSpeedChange(0.1);
           }}
         >
@@ -119,18 +103,10 @@ export function PlaybackControl({
         <MenuItem
           onClick={() => {
             popupState.close();
-            onSpeedChange(2);
+            onSpeedChange(1.5);
           }}
         >
-          2x
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            popupState.close();
-            onSpeedChange(3);
-          }}
-        >
-          3x
+          1.5x
         </MenuItem>
       </Menu>
       <IconButton

@@ -108,7 +108,10 @@ export class Simulation extends EventEmitter {
   private async loadChunk() {
     try {
       const response = await fetch(
-        '/api/data?dataset=' + this.dataset + '&cursor=' + this.bufferTimestamp
+        'https://anton.sch.bme.hu/api/data?dataset=' +
+          this.dataset +
+          '&cursor=' +
+          this.bufferTimestamp
       );
       const data: ApiResponse = await response.json();
       this.data = this.data.concat(
@@ -140,7 +143,9 @@ export class Simulation extends EventEmitter {
 
   private async loadDatasetInfo() {
     try {
-      const response = await fetch('/api/info?dataset=' + this.dataset);
+      const response = await fetch(
+        `https://anton.sch.bme.hu/api/info?dataset=${this.dataset}`
+      );
       const data: { length: number; lastTimestamp: number } =
         await response.json();
       this.length = data.length;
