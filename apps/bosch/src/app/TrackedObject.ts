@@ -1,5 +1,6 @@
 import { HistoryItem } from './components/View3D';
 import { NormalizedObjectData, RawObjectType } from '@bosch/api-interfaces';
+import { Condition, ConditionChecker } from './ConditionChecker';
 
 export class TrackedObject {
   public ttl = 100;
@@ -9,18 +10,31 @@ export class TrackedObject {
   public uuid = Math.random().toString(36).substring(7);
   public x = 0;
   public y = 0;
+  public z = 0;
   public type: RawObjectType = RawObjectType.NO_DETECTION;
   public prediction = { x: 0, y: 0 };
 
   /**
    * Returns the similarity score with a measurement. (0-1)
    */
-  compare(other: NormalizedObjectData): number {
+  compare(other: NormalizedObjectData): boolean {
+    const checker = new ConditionChecker();
     const dx = this.prediction.x - other.x;
     const dy = this.prediction.y - other.y;
     const d2 = dx * dx + dy * dy;
 
-    return Math.sqrt(d2) < 0.8 ? 1 : 0;
+    if (this.z > 0.5 && (other.z ?? 0) > 0.5) {
+      return Math.sqrt(d2) < Math.max(this.z, 2);
+    }
+    checker.addCondition(new Condition('dx', this.prediction.x, other.x, 1.5));
+    checker.addCondition(new Condition('dy', this.prediction.y, other.y, 0.75));
+    checker.addCondition(
+      new Condition('vx', this.lastMeasurement().vx, other.vx, 1.5)
+    );
+    checker.addCondition(
+      new Condition('vx', this.lastMeasurement().vy, other.vy, 0.75)
+    );
+    return checker.checkConditions(1);
     /*if (other.x === this.x && other.y === this.y) {
       return 9999999;
     }
@@ -39,6 +53,7 @@ export class TrackedObject {
     this.ttl = 100;
     this.x = measurement.x;
     this.y = measurement.y;
+    this.z = measurement.z || this.z;
     if (this.prediction.x === 0 && this.prediction.y === 0) {
       this.prediction.x = this.x;
       this.prediction.y = this.y;

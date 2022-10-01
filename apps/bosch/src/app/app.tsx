@@ -31,14 +31,26 @@ export enum DatasetType {
 }
 
 const videos = [
-  'PSA_ADAS_W3_FC_2022-09-01_14-49_0054.mp4',
-  'PSA_ADAS_W3_FC_2022-09-01_14-49_0054_Rear.mp4',
-  'PSA_ADAS_W3_FC_2022-09-01_15-03_0057.mp4',
-  'PSA_ADAS_W3_FC_2022-09-01_15-03_0057_Rear.mp4',
-  'PSA_ADAS_W3_FC_2022-09-01_15-12_0059.mp4',
-  'PSA_ADAS_W3_FC_2022-09-01_15-12_0059_Rear.mp4',
-  'PSA_ADAS_W3_FC_2022-09-01_15-17_0060.mp4',
-  'PSA_ADAS_W3_FC_2022-09-01_15-17_0060_Rear.mp4',
+  {
+    dataset: DatasetType.DATASET_3,
+    front: 'PSA_ADAS_W3_FC_2022-09-01_14-49_0054.mp4',
+    rear: 'PSA_ADAS_W3_FC_2022-09-01_14-49_0054_Rear.mp4',
+  },
+  {
+    dataset: DatasetType.DATASET_4,
+    front: 'PSA_ADAS_W3_FC_2022-09-01_15-03_0057.mp4',
+    rear: 'PSA_ADAS_W3_FC_2022-09-01_15-03_0057_Rear.mp4',
+  },
+  {
+    dataset: DatasetType.DATASET_1,
+    front: 'PSA_ADAS_W3_FC_2022-09-01_15-17_0060.mp4',
+    rear: 'PSA_ADAS_W3_FC_2022-09-01_15-17_0060_Rear.mp4',
+  },
+  {
+    dataset: DatasetType.DATASET_2,
+    front: 'PSA_ADAS_W3_FC_2022-09-01_15-12_0059.mp4',
+    rear: 'PSA_ADAS_W3_FC_2022-09-01_15-12_0059_Rear.mp4',
+  },
 ];
 
 export const App = () => {
@@ -47,7 +59,6 @@ export const App = () => {
   const [selectedObjectId, setSelectedObjectId] = useState('');
   const trackedObjectList = Simulation.get().trackedObjects;
   const [dataset, setDataset] = useState(DatasetType.DATASET_3);
-  const [video, setVideo] = useState(videos[0]);
   const [length, setLength] = useState(0);
   const [timestamp, setTimestamp] = useState(0);
   const [bufferTimestamp, setBufferTimestamp] = useState(0);
@@ -108,44 +119,50 @@ export const App = () => {
                 <MenuItem value={DatasetType.DATASET_3}>14_49</MenuItem>
                 <MenuItem value={DatasetType.DATASET_4}>15_03</MenuItem>
               </Select>
-              <Select
-                onChange={(e) => setVideo(e.target.value as string)}
-                value={video}
-              >
-                {videos.map((video) => (
-                  <MenuItem value={video}>{video}</MenuItem>
-                ))}
-              </Select>
             </Stack>
             <Box
               component={'div'}
               sx={{ position: 'relative', height: '100%' }}
             >
               <View3D
-              onSelect={setSelectedObjectId}
-              data={trackedObjectList}
-              selected={selectedObjectId}
-            />
-              <Box
+                onSelect={setSelectedObjectId}
+                data={trackedObjectList}
+                selected={selectedObjectId}
+              />
+              <Stack
+                direction="row"
                 component={'div'}
                 sx={{
                   position: 'absolute',
-                  bottom: 0,
-                  left: 0,
+                  top: 0,
+                  right: 0,
                   zIndex: 100,
                   width: '30vw',
                 }}
               >
                 <ReactPlayer
                   className="react-player"
-                  url={`http://anton.sch.bme.hu:3000/${video}`}
+                  url={`http://anton.sch.bme.hu:3000/${
+                    videos.find((v) => v.dataset === dataset)?.front
+                  }`}
                   onError={(e) => console.error(e)}
                   playing={isPlaying}
                   playbackRate={playbackSpeed}
                   width="100%"
                   height="100%"
                 />
-              </Box>
+                <ReactPlayer
+                  className="react-player"
+                  url={`http://anton.sch.bme.hu:3000/${
+                    videos.find((v) => v.dataset === dataset)?.rear
+                  }`}
+                  onError={(e) => console.error(e)}
+                  playing={isPlaying}
+                  playbackRate={playbackSpeed}
+                  width="100%"
+                  height="100%"
+                />
+              </Stack>
             </Box>
             <PlaybackControl
               length={length}

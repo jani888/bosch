@@ -81,22 +81,24 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
             scale={[0.98, 0.98, 0.98]}
           >
             <primitive object={model} />
-            <group position={[0, 0, 0]}>
-              <Plane
-                rotation={[-Math.PI / 2, 0, 0]}
-                position={[2, 0.5, 0]}
-                args={[1.5, 2.3]}
-              >
-                <meshStandardMaterial attach="material" color="red" />
-              </Plane>
-              <Plane
-                rotation={[-Math.PI / 2, 0, 0]}
-                position={[-2, 0.5, 0]}
-                args={[1.5, 2.3]}
-              >
-                <meshStandardMaterial attach="material" color="red" />
-              </Plane>
-            </group>
+            {!props.noSensor && (
+              <group position={[0, 0, 0]}>
+                <Plane
+                  rotation={[-Math.PI / 2, 0, 0]}
+                  position={[2, 0.5, 0]}
+                  args={[1.5, 2.3]}
+                >
+                  <meshStandardMaterial attach="material" color="red" />
+                </Plane>
+                <Plane
+                  rotation={[-Math.PI / 2, 0, 0]}
+                  position={[-2, 0.5, 0]}
+                  args={[1.5, 2.3]}
+                >
+                  <meshStandardMaterial attach="material" color="red" />
+                </Plane>
+              </group>
+            )}
           </group>
 
           {!props.noSensor &&

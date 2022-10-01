@@ -1,13 +1,8 @@
-import { ObjectType } from './components/View3D';
 import { EventEmitter } from 'events';
 import { DatasetType } from './app';
 import { TrackedObject } from './TrackedObject';
-import {
-  ApiResponse,
-  NormalizedObjectData,
-  RawMeasurement,
-  RawObjectData,
-} from '@bosch/api-interfaces';
+import { ApiResponse, RawMeasurement } from '@bosch/api-interfaces';
+import { Deduplicator } from './Deduplicator';
 
 export class Simulation extends EventEmitter {
   private static instance: Simulation;
@@ -24,29 +19,13 @@ export class Simulation extends EventEmitter {
   private frame = 0;
   private lastTimestamp = 0;
   private firstFrame = 999999999999;
+  public uniqueTrackings = 0;
+  private deduplicator: Deduplicator;
 
-  private deduplicate = (data: RawMeasurement): NormalizedObjectData[] => {
-    const deduplicated: NormalizedObjectData[] = [];
-    const rawObjects = data.objects.filter(
-      (o) => Math.abs(o.x) < 50 && Math.abs(o.y) < 50
-    );
-    rawObjects.forEach((object) => {
-      const existing = deduplicated.find((deduplicatedObject, index) =>
-        this.isTheSameObject(deduplicatedObject, object)
-      );
-      if (existing) {
-        existing.raw.push(object);
-        //TODO: update dedup result
-      } else {
-        deduplicated.push({
-          timestamp: data.timestamp,
-          ...object,
-          raw: [object],
-        });
-      }
-    });
-    return deduplicated;
-  };
+  constructor() {
+    super();
+    this.deduplicator = new Deduplicator();
+  }
 
   static get() {
     if (!this.instance) {
@@ -63,6 +42,7 @@ export class Simulation extends EventEmitter {
   }
 
   private reset() {
+    this.uniqueTrackings = 0;
     this.currentTimestamp = 0;
     this.frame = 0;
     this.bufferTimestamp = 0;
@@ -152,22 +132,22 @@ export class Simulation extends EventEmitter {
       (item) => item.timestamp < timestamp && !item.consumed
     );
     this.updatePredictions(timestamp);
-    const deduped = pendingMeasurements.map(this.deduplicate);
+    const deduped = pendingMeasurements.map(this.deduplicator.deduplicate);
     deduped.forEach((dedupRow) => {
       const newTrackedObjects: TrackedObject[] = [];
       dedupRow.forEach((measurement) => {
-        const scores = this.trackedObjects.map((to) => ({
-          to,
-          score: to.compare(measurement),
-        }));
-        scores.sort((a, b) => b.score - a.score);
-        const bestMatch = scores[0];
-        if (bestMatch && bestMatch.score > 0.8) {
-          bestMatch.to.addMeasurement(measurement, timestamp);
+        const existing = this.trackedObjects.find((trackedObject) =>
+          trackedObject.compare(measurement)
+        );
+        if (existing) {
+          existing.addMeasurement(measurement, timestamp);
         } else {
-          const to = new TrackedObject();
-          to.addMeasurement(measurement, timestamp);
-          newTrackedObjects.push(to);
+          if (Math.abs(measurement.y) < 8 && (measurement.z ?? 0) < 1.25) {
+            this.uniqueTrackings += 1;
+            const to = new TrackedObject();
+            to.addMeasurement(measurement, timestamp);
+            newTrackedObjects.push(to);
+          }
         }
       });
       this.trackedObjects = this.trackedObjects.concat(newTrackedObjects);
@@ -175,31 +155,9 @@ export class Simulation extends EventEmitter {
     pendingMeasurements.forEach((item) => {
       item.consumed = true;
     });
-    this.emit('step');
+    if (this.frame % 5 === 0) {
+      this.emit('step');
+    }
     this.animationFrame = requestAnimationFrame(this.step);
-    /*this.trackedObjects = [];
-    const pendingMeasurements = this.data.filter(
-      (item) => item.timestamp <= this.currentTimestamp && !item.consumed
-    );
-    const normalizedMeasurements = pendingMeasurements.map(
-      this.normalizeMeasurement
-    );
-    normalizedMeasurements.forEach((measurement) =>
-      this.updateTracking(measurement, dt)
-    );*/
-  };
-
-  private isTheSameObject = (
-    deduplicatedObject: NormalizedObjectData,
-    object: RawObjectData
-  ): boolean => {
-    const dx = Math.pow(deduplicatedObject.x - object.x, 2);
-    const dy = Math.pow(deduplicatedObject.y - object.y, 2);
-    const distanceDiff = Math.sqrt(dx + dy);
-    const dvx = Math.pow(deduplicatedObject.vx - object.vx, 2);
-    const dvy = Math.pow(deduplicatedObject.vy - object.vy, 2);
-    const velocityDiff = Math.sqrt(dvx + dvy);
-    //TODO: use the rest of the measurements to enhance the result
-    return distanceDiff < 0.5 && velocityDiff < 2; // 25cm és 7.2km/h-nál kissebb a különbség
   };
 }

@@ -143,10 +143,11 @@ function TrackedObjectItem({
             history={object.history}
           />
         )}
-        <UnknownObject
-          onClick={onClick}
+        <Car
           x={object.x}
           y={object.y}
+          heading={360}
+          noSensor
           color={selected ? 'blue' : 'green'}
         />
       </>
@@ -176,6 +177,31 @@ function TrackedObjectItem({
           heading={360}
           movementState={PedestrianMovementState.Walking}
           color={selected ? 'blue' : 'grey'}
+        />
+      </>
+    );
+  }
+
+  if (object.type === RawObjectType.TRUCK) {
+    return (
+      <>
+        <Truck
+          x={object.x}
+          y={object.y}
+          heading={360}
+          color={selected ? 'blue' : 'gray'}
+        />
+      </>
+    );
+  }
+  if (object.type === RawObjectType.MOTORBIKE) {
+    return (
+      <>
+        <MotorBike
+          x={object.x}
+          y={object.y}
+          heading={360}
+          color={selected ? 'blue' : 'gray'}
         />
       </>
     );
@@ -216,6 +242,7 @@ function TrackedObjectItem({
         color={selected ? 'blue' : 'grey'}
         x={object.x}
         y={object.y}
+        z={object.z}
         opacity={object.ttl / 20}
       />
     </>
