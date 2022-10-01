@@ -10,11 +10,13 @@ import {
   Menu,
   MenuItem,
   Stack,
+  Typography,
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import React, { useEffect, useState } from 'react';
 import { Simulation } from '../Simulation';
+import SlowMotionVideoIcon from '@mui/icons-material/SlowMotionVideo';
 
 export function PlaybackControl({
   onTogglePlayback,
@@ -29,7 +31,7 @@ export function PlaybackControl({
   const [current, setCurrent] = useState<number>(0);
   const [buffer, setBuffer] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [speed, setSpeed] = useState(0);
+  const [speed, setSpeed] = useState(1);
   const [length, setLength] = useState(0);
 
   useEffect(() => {
@@ -53,6 +55,7 @@ export function PlaybackControl({
   const popupState = usePopupState({ variant: 'popover', popupId: 'demoMenu' });
   return (
     <Stack
+      id="playback-control"
       direction="row"
       p={1}
       sx={{
@@ -62,8 +65,9 @@ export function PlaybackControl({
         borderColor: 'grey.500',
       }}
     >
-      {current.toFixed(0)}
       <Button
+        startIcon={<SlowMotionVideoIcon />}
+        id="speed-selector"
         size="small"
         variant="text"
         color="primary"
@@ -129,9 +133,17 @@ export function PlaybackControl({
           3x
         </MenuItem>
       </Menu>
-      <IconButton sx={{ mr: 2 }} color="primary" onClick={onTogglePlayback}>
+      <IconButton
+        id="play-button"
+        sx={{ mr: 2 }}
+        color="primary"
+        onClick={onTogglePlayback}
+      >
         {!isPlaying ? <PlayArrowIcon /> : <PauseIcon />}
       </IconButton>
+      <Typography mr={2} color="primary">
+        {(current / 100).toFixed(2)}s
+      </Typography>
       <LinearProgress
         sx={{ width: '100%' }}
         value={(current / length) * 100}

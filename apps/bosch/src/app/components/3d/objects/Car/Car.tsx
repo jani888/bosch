@@ -1,7 +1,7 @@
-import { Object3D } from 'three';
+import { Color, Mesh, Object3D, PlaneGeometry, ShaderMaterial } from 'three';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { createRef, useEffect, useMemo, useState } from 'react';
 import { setMaterials } from './SetCarMaterials';
 import { useFrame, useThree } from '@react-three/fiber';
 import { usePlayback } from '../../../../hooks/usePlayback';
@@ -23,6 +23,7 @@ interface CarProps {
 
 export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
   const { isPlaying, speed } = usePlayback();
+  const planeRef = createRef<PlaneGeometry>();
   const [model, setModel] = useState<Object3D>();
   const [wheels, setWheels] = useState<Object3D[]>([]);
   const [fixRotation, setFixRotation] = useState(90);
@@ -68,7 +69,7 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
     setWheels(wheelList.filter((a) => a) as Object3D[]);
     setModel(carModel);
     setFixRotation(0);
-  }, [rawModel]);
+  }, [rawModel, color, opacity]);
 
   useFrame((state, delta, frame) => {
     if (!isPlaying) return;
@@ -103,9 +104,9 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
                 >
                   <meshStandardMaterial
                     attach="material"
-                    color="red"
+                    color="#E00420"
                     transparent={true}
-                    opacity={rightBlindSpot ? 1 : 0.3}
+                    opacity={rightBlindSpot ? 0.8 : 0.3}
                   />
                 </Plane>
                 <Plane
@@ -115,9 +116,9 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
                 >
                   <meshStandardMaterial
                     attach="material"
-                    color="red"
+                    color="#E00420"
                     transparent={true}
-                    opacity={leftBlindSpot ? 1 : 0.3}
+                    opacity={leftBlindSpot ? 0.8 : 0.3}
                   />
                 </Plane>
               </group>

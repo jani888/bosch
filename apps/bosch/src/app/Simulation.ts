@@ -27,6 +27,8 @@ export class Simulation extends EventEmitter {
   public carX = 0;
   public carY = 0;
   private carChangeTimestamp = 0;
+  private pausedAt = 0;
+  private pausedTime = 0;
 
   public blindSpotDetection() {
     const rightBlindSpot = this.trackedObjects.filter(
@@ -75,10 +77,15 @@ export class Simulation extends EventEmitter {
   }
 
   private reset() {
+    this.firstFrame = 999999999999;
     this.uniqueTrackings = 0;
     this.currentTimestamp = 0;
     this.frame = 0;
     this.bufferTimestamp = 0;
+    this.pausedAt = 0;
+    this.pausedTime = 0;
+    this.trackedObjects = [];
+    this.emit('step');
   }
 
   private loadDataset() {
@@ -121,6 +128,7 @@ export class Simulation extends EventEmitter {
     if (this.playing) {
       this.play();
     } else {
+      this.pausedAt = new Date().getTime();
       if (this.animationFrame) cancelAnimationFrame(this.animationFrame);
     }
   }
@@ -146,7 +154,7 @@ export class Simulation extends EventEmitter {
 
   private ensureBufferIsHealthy() {
     const bufferLength = this.data.filter((d) => !d.consumed).length;
-    if (bufferLength < 3000 && this.bufferTimestamp < this.lastTimestamp) {
+    if (bufferLength < 30000 && this.bufferTimestamp < this.lastTimestamp) {
       this.loadChunk();
     }
   }
@@ -156,8 +164,12 @@ export class Simulation extends EventEmitter {
   }
 
   private step = (time: number) => {
+    this.pausedTime += this.pausedAt ? new Date().getTime() - this.pausedAt : 0;
+    this.pausedAt = 0;
     this.firstFrame = Math.min(time, this.firstFrame);
-    const timestamp = ((time - this.firstFrame) / 10) * this.playbackSpeed;
+    const timestamp =
+      ((time - this.firstFrame - this.pausedAt - this.pausedTime) / 10) *
+      this.playbackSpeed;
     this.frame++;
     this.lastTime = time;
     this.currentTimestamp = timestamp;

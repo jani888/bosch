@@ -59,3 +59,18 @@
     color: #ccc;
   }
 }
+
+.stats {
+  top: 86px !important;
+}
+
+#walktour-tooltip-container{
+  outline: none;
+}
+
+#walktour-tooltip-container>div{
+  width: 400px !important;
+  max-width: 400px !important;
+  padding: 24px !important;
+  border-radius: 16px !important;
+}

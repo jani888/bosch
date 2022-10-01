@@ -1,4 +1,4 @@
-import { Box, Divider, Stack, Typography } from '@mui/material';
+import { Box, Chip, Divider, Stack, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { ObjectListItem } from './ObjectListItem';
 import { TrackedObject } from '../../TrackedObject';
@@ -44,7 +44,13 @@ export function ObjectList({
   }, [data]);
 
   return (
-    <Stack gap={1} width={300} p={3} sx={{ minHeight: 0, height: '100%' }}>
+    <Stack
+      gap={1}
+      width={300}
+      p={3}
+      sx={{ minHeight: 0, height: '100%' }}
+      id="object-list"
+    >
       <Typography variant="h5">Tracked objects</Typography>
 
       <Box
@@ -76,7 +82,40 @@ export function ObjectList({
         />
       </Box>
 
-      <Stack sx={{ overflow: 'auto' }}>
+      <Stack gap={1} sx={{ overflow: 'auto' }}>
+        {selected && (
+          <Stack mb={1}>
+            <Typography
+              textAlign="center"
+              variant="subtitle2"
+              fontWeight="bold"
+              fontSize={11}
+              color="grey.300"
+            >
+              LEGEND
+            </Typography>
+            <Stack gap={1} direction="row">
+              <Chip
+                label="Measurement"
+                sx={{
+                  width: '100%',
+                  backgroundColor: 'primary.main',
+                  color: 'white',
+                  fontWeight: 700,
+                }}
+              />
+              <Chip
+                label="Prediction"
+                sx={{
+                  width: '100%',
+                  backgroundColor: 'info.main',
+                  color: 'white',
+                  fontWeight: 700,
+                }}
+              />
+            </Stack>
+          </Stack>
+        )}
         {data.map((trackedObject) => (
           <ObjectListItem
             selected={selected === trackedObject.uuid}

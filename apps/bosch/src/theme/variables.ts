@@ -1,8 +1,8 @@
 const colours = {
   primary: {
-    main: '#582FEB',
+    main: '#E00420',
     light: '#B7ADFF',
-    dark: '#1F0352',
+    dark: '#A00420',
     contrastText: '#FFFFFF',
   },
   secondary: {
@@ -37,6 +37,9 @@ const colours = {
   },
   background: {
     default: '#F7F7F7',
+  },
+  grey: {
+    300: '#737A80',
   },
 };
 

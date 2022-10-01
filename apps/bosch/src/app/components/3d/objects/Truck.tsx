@@ -36,7 +36,7 @@ export const Truck = ({ opacity = 1, ...props }: TruckProps) => {
     makeMaterialsTransparent(truckModel, opacity);
 
     setModel(truckModel);
-  }, [rawModel]);
+  }, [rawModel, props.color, opacity]);
 
   if (model) {
     model.position.set(props.x, 0, props.y);

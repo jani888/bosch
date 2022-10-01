@@ -70,7 +70,7 @@ export function View3D({
       }}
     >
       <scene>
-        <Stats />
+        <Stats className="stats" />
         <Sky sunPosition={[7, 5, 1]} />
         <fog attach="fog" args={['white', 0, 26]} />
 
@@ -79,6 +79,7 @@ export function View3D({
         <Lights />
 
         <Car
+          color="#E00420"
           noSensor={!showSensors}
           noBlindSpot={!showBlindSpots}
           x={0}
@@ -118,8 +119,9 @@ function History3D({
       {history.map((historyItem, index) => (
         <group key={index} position={[historyItem.x, 0, historyItem.y]}>
           {React.cloneElement(component, {
-            color: historyItem.itemType === 'measurement' ? 'red' : 'blue',
-            opacity: (index + 1) / (history.length + 1),
+            color:
+              historyItem.itemType === 'measurement' ? '#E00420' : '#40A9FF',
+            opacity: (index + 1) / (history.length + 1) + 0.5,
           })}
         </group>
       ))}
@@ -138,16 +140,27 @@ function TrackedObjectItem({
 }) {
   const x = object.x;
   const y = object.y;
+  const history = object.history.filter(
+    (h, index) =>
+      index % Math.floor(object.history.length / 20) === 0 ||
+      h.itemType === 'measurement'
+  );
+
   if (object.type === RawObjectType.BICYCLE) {
     return (
       <>
         {selected && (
           <History3D
-            component={<Cyclist heading={360} x={0} y={0} color="blue" />}
-            history={object.history}
+            component={<Cyclist heading={360} x={0} y={0} color="#A00420" />}
+            history={history}
           />
         )}
-        <Cyclist x={x} y={y} heading={360} color={selected ? 'blue' : 'grey'} />
+        <Cyclist
+          x={x}
+          y={y}
+          heading={360}
+          color={selected ? '#A00420' : '#737A80'}
+        />
       </>
     );
   }
@@ -156,8 +169,8 @@ function TrackedObjectItem({
       <>
         {selected && (
           <History3D
-            component={<UnknownObject x={0} y={0} color="blue" />}
-            history={object.history}
+            component={<UnknownObject x={0} y={0} color="#A00420" />}
+            history={history}
           />
         )}
         <Car
@@ -166,44 +179,30 @@ function TrackedObjectItem({
           heading={360}
           noSensor
           noBlindSpot
-          color={selected ? 'blue' : 'green'}
+          color={selected ? '#A00420' : '#737A80'}
         />
       </>
     );
   }
   if (object.type === RawObjectType.PEDESTRIAN) {
-    return (
-      <>
-        {selected && (
-          <History3D
-            component={
-              <Pedestrian
-                heading={360}
-                movementState={PedestrianMovementState.Idle}
-                x={0}
-                y={0}
-                color="blue"
-              />
-            }
-            history={object.history}
-          />
-        )}
-        <Pedestrian
-          onClick={onClick}
-          x={x}
-          y={y}
-          heading={360}
-          movementState={PedestrianMovementState.Walking}
-          color={selected ? 'blue' : 'grey'}
-        />
-      </>
-    );
+    return <></>;
   }
 
   if (object.type === RawObjectType.TRUCK) {
     return (
       <>
-        <Truck x={x} y={y} heading={360} color={selected ? 'blue' : 'gray'} />
+        {selected && (
+          <History3D
+            component={<UnknownObject x={0} y={0} color="#A00420" />}
+            history={history}
+          />
+        )}
+        <Truck
+          x={x}
+          y={y}
+          heading={360}
+          color={selected ? '#A00420' : '#737A80'}
+        />
       </>
     );
   }
@@ -214,7 +213,7 @@ function TrackedObjectItem({
           x={x}
           y={y}
           heading={360}
-          color={selected ? 'blue' : 'gray'}
+          color={selected ? '#A00420' : '#737A80'}
         />
       </>
     );
@@ -246,13 +245,13 @@ function TrackedObjectItem({
         />*/}
       {selected && (
         <History3D
-          component={<UnknownObject x={0} y={0} color="blue" />}
-          history={object.history}
+          component={<UnknownObject x={0} y={0} color="#A00420" />}
+          history={history}
         />
       )}
       <UnknownObject
         onClick={onClick}
-        color={selected ? 'blue' : 'grey'}
+        color={selected ? '#A00420' : '#737A80'}
         x={x}
         y={y}
         z={object.z}

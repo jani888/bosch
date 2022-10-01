@@ -5,8 +5,10 @@ import {
   createTheme,
   CssBaseline,
   Divider,
+  FormControl,
   FormControlLabel,
   IconButton,
+  InputLabel,
   MenuItem,
   Select,
   Stack,
@@ -15,6 +17,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import { mainTheme } from '../theme/mainTheme';
 import { View3D } from './components/View3D';
@@ -26,6 +29,7 @@ import { HfdnDemo } from './components/HfdnDemo';
 import { CarDashboard } from './carDashboard';
 import './app.module.scss';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import { Walktour } from 'walktour';
 
 export const PlaybackContext = React.createContext<{
   isPlaying: boolean;
@@ -84,7 +88,7 @@ export const App = () => {
   const [dataset, setDataset] = useState(DatasetType.DATASET_3);
   const [length, setLength] = useState(0);
   const [userView, setUserView] = useState(userViews[0].value);
-  const [showBlindSpots, setShowBlindSpots] = useState(false);
+  const [showBlindSpots, setShowBlindSpots] = useState(true);
   const [showSensors, setShowSensors] = useState(false);
 
   const simulation = Simulation.get();
@@ -104,6 +108,80 @@ export const App = () => {
   return (
     <ThemeProvider theme={createTheme(mainTheme)}>
       <CssBaseline />
+      <Walktour
+        disableClose
+        allowForeignTarget={false}
+        customTitleRenderer={(title) => (
+          <Typography variant="h5" fontWeight="bold">
+            {title}
+          </Typography>
+        )}
+        customFooterRenderer={(tourLogic) => (
+          <Stack justifyContent="space-between" direction="row" mt={2}>
+            {tourLogic?.stepContent.selector === '#object-list' ? (
+              <Button variant="contained" onClick={() => tourLogic?.close()}>
+                Okay, got it
+              </Button>
+            ) : (
+              <>
+                <Button variant="text" onClick={() => tourLogic?.close()}>
+                  Skip tutorial
+                </Button>
+                <Button variant="contained" onClick={() => tourLogic?.next()}>
+                  Next
+                </Button>
+              </>
+            )}
+          </Stack>
+        )}
+        steps={[
+          {
+            selector: '#app',
+            title: 'Welcome to our Code #LikeABosch demo',
+            description:
+              'This is a demo of our solution for the Bosch Code #LikeABosch software challenge',
+          },
+          {
+            selector: '#dataset-selector',
+            title: 'Choose the dataset',
+            description: 'First of all, choose the dataset you want to use',
+          },
+          {
+            selector: '#video-toggle',
+            title: 'Toggle video visibility',
+            description: "If you don't want to see the video, you can hide it",
+          },
+          {
+            selector: '#playback-control',
+            title: 'Playback control',
+            description: 'You can control the simulation here',
+          },
+          {
+            selector: '#speed-selector',
+            title: 'Select the simulation speed',
+            description:
+              'You can change the simulation speed with this dropdown. 1x means 1 second in the simulation is 1 second in real time',
+          },
+          {
+            selector: '#play-button',
+            title: 'Start the simulation',
+            description: 'You can start the simulation with this button',
+          },
+          {
+            selector: '#dashboard',
+            title: 'Car dashboard',
+            description:
+              "Here you can see the car's speed and the left and right blind spot sensors. These sensors will blink, when something is in the blind spot.",
+          },
+          {
+            selector: '#object-list',
+            title: 'Select an object',
+            description:
+              'You can select an object from the list to see its details',
+            closeLabel: 'Okay, got it',
+          },
+        ]}
+      />
       <PlaybackContext.Provider value={{ isPlaying, speed: playbackSpeed }}>
         <Stack
           direction="row"
@@ -123,16 +201,29 @@ export const App = () => {
               }}
               gap={2}
             >
-              <Select
-                onChange={(e) => setDataset(e.target.value as DatasetType)}
-                value={dataset}
-              >
-                <MenuItem value={DatasetType.DATASET_1}>15_17</MenuItem>
-                <MenuItem value={DatasetType.DATASET_2}>15_12</MenuItem>
-                <MenuItem value={DatasetType.DATASET_3}>14_49</MenuItem>
-                <MenuItem value={DatasetType.DATASET_4}>15_03</MenuItem>
-              </Select>
+              <img
+                src="https://hackathon.boschevent.hu/images/logo.svg"
+                alt=""
+                style={{ height: 46 }}
+              />
+              <FormControl sx={{ height: '100%' }}>
+                <InputLabel>Dataset</InputLabel>
+                <Select
+                  id="dataset-selector"
+                  sx={{ height: '100%' }}
+                  size="medium"
+                  label="Dataset"
+                  onChange={(e) => setDataset(e.target.value as DatasetType)}
+                  value={dataset}
+                >
+                  <MenuItem value={DatasetType.DATASET_1}>15:17</MenuItem>
+                  <MenuItem value={DatasetType.DATASET_2}>15:12</MenuItem>
+                  <MenuItem value={DatasetType.DATASET_3}>14:49</MenuItem>
+                  <MenuItem value={DatasetType.DATASET_4}>15:03</MenuItem>
+                </Select>
+              </FormControl>
               <ToggleButtonGroup
+                size="small"
                 color="primary"
                 value={userView}
                 exclusive
@@ -175,6 +266,7 @@ export const App = () => {
                   />
                   <Tooltip title="Toggle video">
                     <Button
+                      id="video-toggle"
                       startIcon={<PhotoCameraIcon />}
                       onClick={() => setVideoVisible((v) => !v)}
                     >

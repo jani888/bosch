@@ -2,6 +2,7 @@
 // @ts-nocheck
 import {
   Mesh,
+  MeshBasicMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
@@ -13,6 +14,11 @@ export function setMaterials(
   color: string,
   opacity: number
 ) {
+  carModel.traverse((o) => {
+    if (o.isMesh) {
+      console.log(o.name);
+    }
+  });
   const bodyMaterial = new MeshPhysicalMaterial({
     color: color,
     opacity: opacity,
@@ -22,6 +28,11 @@ export function setMaterials(
     clearcoat: 1.0,
     clearcoatRoughness: 0.03,
     sheen: 0.5,
+  });
+
+  const interialMaterial = new MeshStandardMaterial({
+    color: 0x737a80,
+    metalness: 0.5,
   });
 
   const detailsMaterial = new MeshStandardMaterial({
@@ -41,12 +52,18 @@ export function setMaterials(
     transmission: 1.0,
   });
 
+  carModel.getObjectByName('interior_light').material = interialMaterial;
+  carModel.getObjectByName('yellow_trim').material = bodyMaterial;
   carModel.getObjectByName('body').material = bodyMaterial;
   carModel.getObjectByName('rim_fl').material = detailsMaterial;
   carModel.getObjectByName('rim_fr').material = detailsMaterial;
   carModel.getObjectByName('rim_rr').material = detailsMaterial;
   carModel.getObjectByName('rim_rl').material = detailsMaterial;
   carModel.getObjectByName('trim').material = detailsMaterial;
+  carModel.getObjectByName('centre').material = detailsMaterial;
+  carModel.getObjectByName('centre_1').material = detailsMaterial;
+  carModel.getObjectByName('centre_2').material = detailsMaterial;
+  carModel.getObjectByName('centre_3').material = detailsMaterial;
   carModel.getObjectByName('glass').material = glassMaterial;
 
   makeMaterialsTransparent(carModel, color, opacity);
