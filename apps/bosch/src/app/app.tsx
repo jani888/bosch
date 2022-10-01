@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
+  Button,
   createTheme,
   CssBaseline,
+  Divider,
+  FormControlLabel,
+  IconButton,
   MenuItem,
   Select,
   Stack,
+  Switch,
   ThemeProvider,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
 } from '@mui/material';
 import { mainTheme } from '../theme/mainTheme';
 import { View3D } from './components/View3D';
@@ -17,6 +23,9 @@ import { ObjectList } from './components/object-list/ObjectList';
 import { PlaybackControl } from './components/PlaybackControl';
 import ReactPlayer from 'react-player';
 import { HfdnDemo } from './components/HfdnDemo';
+import { CarDashboard } from './carDashboard';
+import './app.module.scss';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 
 export const PlaybackContext = React.createContext<{
   isPlaying: boolean;
@@ -71,12 +80,13 @@ export const App = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [selectedObjectId, setSelectedObjectId] = useState('');
+  const [videoVisible, setVideoVisible] = useState(true);
   const trackedObjectList = Simulation.get().trackedObjects;
   const [dataset, setDataset] = useState(DatasetType.DATASET_3);
   const [length, setLength] = useState(0);
-  const [timestamp, setTimestamp] = useState(0);
-  const [bufferTimestamp, setBufferTimestamp] = useState(0);
   const [userView, setUserView] = useState(userViews[1].value);
+  const [showBlindSpots, setShowBlindSpots] = useState(false);
+  const [showSensors, setShowSensors] = useState(false);
 
   const simulation = Simulation.get();
   useEffect(() => {
@@ -90,27 +100,7 @@ export const App = () => {
     simulation.on('playbackSpeedChanged', (speed: number) => {
       setPlaybackSpeed(speed);
     });
-    simulation.on('lengthChanged', (length: number) => {
-      setLength(length);
-    });
-    simulation.on('chunkLoaded', () => {
-      setBufferTimestamp(simulation.bufferTimestamp);
-    });
-    simulation.on('step', () => {
-      setTimestamp(simulation.currentTimestamp);
-    });
   }, []);
-
-  //
-  // function simulate(time: number) {
-  //   frame.current++;
-  //   requestRef.current = requestAnimationFrame(simulate);
-  //   const dt = time - previousTimeRef.current;
-  //   previousTimeRef.current = time;
-  //   if (frame.current % ((4 - playbackSpeed) * 10) === 0) {
-  //     //step(dt, time);
-  //   }
-  // }
 
   return (
     <ThemeProvider theme={createTheme(mainTheme)}>
@@ -124,7 +114,16 @@ export const App = () => {
           }}
         >
           <Stack width="100%">
-            <Stack direction="row" gap={2}>
+            <Stack
+              py={2.25}
+              px={3}
+              direction="row"
+              sx={{
+                borderBottom: '1px solid',
+                borderBottomColor: 'grey.300',
+              }}
+              gap={2}
+            >
               <Select
                 onChange={(e) => setDataset(e.target.value as DatasetType)}
                 value={dataset}
@@ -153,6 +152,38 @@ export const App = () => {
                   </ToggleButton>
                 ))}
               </ToggleButtonGroup>
+              {userView === 'object-tracking' && (
+                <Stack direction="row" ml="auto">
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={showBlindSpots}
+                        onChange={(_, v) => setShowBlindSpots(v)}
+                        defaultChecked
+                      />
+                    }
+                    label="Show blind spots"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={showSensors}
+                        onChange={(_, v) => setShowSensors(v)}
+                        defaultChecked
+                      />
+                    }
+                    label="Show sensors"
+                  />
+                  <Tooltip title="Toggle video">
+                    <Button
+                      startIcon={<PhotoCameraIcon />}
+                      onClick={() => setVideoVisible((v) => !v)}
+                    >
+                      Toggle Video
+                    </Button>
+                  </Tooltip>
+                </Stack>
+              )}
             </Stack>
             <Box
               component={'div'}
@@ -161,18 +192,19 @@ export const App = () => {
               {userView === 'object-tracking' && (
                 <>
                   <View3D
+                    showBlindSpots={showBlindSpots}
+                    showSensors={showSensors}
                     onSelect={setSelectedObjectId}
-                    data={trackedObjectList}
                     selected={selectedObjectId}
                   />
                   <Stack
                     direction="row"
-                    component={'div'}
+                    component="div"
                     sx={{
                       position: 'absolute',
                       top: 0,
                       right: 0,
-                      zIndex: 100,
+                      zIndex: videoVisible ? 100 : -1,
                       width: '30vw',
                     }}
                   >
@@ -205,19 +237,25 @@ export const App = () => {
             </Box>
             <PlaybackControl
               length={length}
-              current={timestamp}
-              buffer={bufferTimestamp}
               speed={playbackSpeed}
               isPlaying={isPlaying}
               onTogglePlayback={() => simulation.togglePlaying()}
               onSpeedChange={(speed) => simulation.changePlaybackSpeed(speed)}
             />
           </Stack>
-          <ObjectList
-            onSelect={setSelectedObjectId}
-            selected={selectedObjectId}
-            data={trackedObjectList}
-          />
+          <Stack
+            sx={{
+              borderLeft: '1px solid',
+              borderLeftColor: 'grey.300',
+            }}
+          >
+            <CarDashboard />
+            <Divider />
+            <ObjectList
+              onSelect={setSelectedObjectId}
+              selected={selectedObjectId}
+            />
+          </Stack>
         </Stack>
       </PlaybackContext.Provider>
     </ThemeProvider>

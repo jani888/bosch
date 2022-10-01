@@ -13,25 +13,43 @@ import {
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Simulation } from '../Simulation';
 
 export function PlaybackControl({
-  isPlaying,
   onTogglePlayback,
-  speed,
   onSpeedChange,
-  length,
-  current,
-  buffer,
 }: {
   speed: number;
   isPlaying: boolean;
   onTogglePlayback: () => void;
   onSpeedChange: (speed: number) => void;
   length: number;
-  current: number;
-  buffer: number;
 }) {
+  const [current, setCurrent] = useState<number>(0);
+  const [buffer, setBuffer] = useState<number>(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [speed, setSpeed] = useState(0);
+  const [length, setLength] = useState(0);
+
+  useEffect(() => {
+    const simulation = Simulation.get();
+    simulation.on('playingChanged', (playing: boolean) => {
+      setIsPlaying(playing);
+    });
+    simulation.on('playbackSpeedChanged', (speed: number) => {
+      setSpeed(speed);
+    });
+    simulation.on('lengthChanged', (length: number) => {
+      setLength(length);
+    });
+    simulation.on('chunkLoaded', () => {
+      setBuffer(simulation.bufferTimestamp);
+    });
+    simulation.on('step', () => {
+      setCurrent(simulation.currentTimestamp);
+    });
+  }, []);
   const popupState = usePopupState({ variant: 'popover', popupId: 'demoMenu' });
   return (
     <Stack

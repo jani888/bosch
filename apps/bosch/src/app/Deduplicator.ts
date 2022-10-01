@@ -16,6 +16,15 @@ export class Deduplicator {
         this.isTheSameObject(deduplicatedObject, object)
       );
       if (existing) {
+        if (!existing.ax) {
+          existing.ax = object.ax;
+        }
+        if (!existing.ay) {
+          existing.ay = object.ay;
+        }
+        if (!existing.objectType) {
+          existing.objectType = object.objectType;
+        }
         existing.raw.push(object);
         //TODO: update dedup result
       } else {
@@ -26,7 +35,9 @@ export class Deduplicator {
         });
       }
     });
-    return deduplicated;
+    return deduplicated.filter(
+      (o) => Math.sqrt(Math.pow(o.x, 2) + Math.pow(o.y, 2)) > 4
+    );
   };
 
   private isTheSameObject = (

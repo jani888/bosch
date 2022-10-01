@@ -17,6 +17,7 @@ interface CarProps {
   color?: string;
   opacity?: number;
   noSensor?: boolean;
+  noBlindSpot?: boolean;
 }
 
 export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
@@ -78,7 +79,7 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
             scale={[0.98, 0.98, 0.98]}
           >
             <primitive object={model} />
-            {!props.noSensor && (
+            {!props.noBlindSpot && (
               <group position={[0, 0, 0]}>
                 <Plane
                   rotation={[-Math.PI / 2, 0, 0]}

@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { UnknownObject } from './3d/objects/UnknownObject';
 import { BasePlane } from './BasePlane';
@@ -13,6 +13,8 @@ import { TrackedObject } from '../TrackedObject';
 import { Truck } from './3d/objects/Truck';
 import { NormalizedObjectData, RawObjectType } from '@bosch/api-interfaces';
 import { MotorBike } from './3d/objects/MotorBike';
+import { TruckOrCar } from './3d/objects/TruckOrCar';
+import { Simulation } from '../Simulation';
 
 export enum ObjectType {
   Unknown = 'Unknown',
@@ -28,14 +30,26 @@ export interface HistoryItem extends NormalizedObjectData {
 }
 
 export function View3D({
-  data,
   selected,
+  showSensors,
+  showBlindSpots,
   onSelect,
 }: {
-  data: TrackedObject[];
   selected: string;
+  showBlindSpots: boolean;
+  showSensors: boolean;
   onSelect(id: string): void;
 }): ReactElement {
+  const [data, setData] = useState<TrackedObject[]>([]);
+  useEffect(() => {
+    const listener = () => {
+      setData(Simulation.get().trackedObjects);
+    };
+    Simulation.get().on('step', listener);
+    return () => {
+      Simulation.get().off('step', listener);
+    };
+  }, []);
   const selectedObject = data.find((o) => o.uuid === selected);
   return (
     <Canvas
@@ -62,17 +76,25 @@ export function View3D({
 
         <Lights />
 
-        <Car x={0} y={0} heading={0} />
+        <Car
+          noSensor={!showSensors}
+          noBlindSpot={!showBlindSpots}
+          x={0}
+          y={0}
+          heading={0}
+        />
 
         <group scale={[1, 1, -1]}>
-          {data.map((trackedObject) => (
-            <TrackedObjectItem
-              onClick={() => onSelect(trackedObject.uuid)}
-              selected={trackedObject.uuid === selected}
-              key={trackedObject.uuid}
-              object={trackedObject}
-            />
-          ))}
+          {data
+            .filter((o) => o.measurements.length > 3)
+            .map((trackedObject) => (
+              <TrackedObjectItem
+                onClick={() => onSelect(trackedObject.uuid)}
+                selected={trackedObject.uuid === selected}
+                key={trackedObject.uuid}
+                object={trackedObject}
+              />
+            ))}
         </group>
 
         <BasePlane />
@@ -112,6 +134,8 @@ function TrackedObjectItem({
   selected: boolean;
   onClick?: () => void;
 }) {
+  const x = object.prediction.x;
+  const y = object.prediction.y;
   if (object.type === RawObjectType.BICYCLE) {
     return (
       <>
@@ -121,12 +145,7 @@ function TrackedObjectItem({
             history={object.history}
           />
         )}
-        <Cyclist
-          x={object.x}
-          y={object.y}
-          heading={360}
-          color={selected ? 'blue' : 'grey'}
-        />
+        <Cyclist x={x} y={y} heading={360} color={selected ? 'blue' : 'grey'} />
       </>
     );
   }
@@ -140,10 +159,11 @@ function TrackedObjectItem({
           />
         )}
         <Car
-          x={object.x}
-          y={object.y}
+          x={x}
+          y={y}
           heading={360}
           noSensor
+          noBlindSpot
           color={selected ? 'blue' : 'green'}
         />
       </>
@@ -168,8 +188,8 @@ function TrackedObjectItem({
         )}
         <Pedestrian
           onClick={onClick}
-          x={object.x}
-          y={object.y}
+          x={x}
+          y={y}
           heading={360}
           movementState={PedestrianMovementState.Walking}
           color={selected ? 'blue' : 'grey'}
@@ -181,12 +201,7 @@ function TrackedObjectItem({
   if (object.type === RawObjectType.TRUCK) {
     return (
       <>
-        <Truck
-          x={object.x}
-          y={object.y}
-          heading={360}
-          color={selected ? 'blue' : 'gray'}
-        />
+        <Truck x={x} y={y} heading={360} color={selected ? 'blue' : 'gray'} />
       </>
     );
   }
@@ -194,8 +209,8 @@ function TrackedObjectItem({
     return (
       <>
         <MotorBike
-          x={object.x}
-          y={object.y}
+          x={x}
+          y={y}
           heading={360}
           color={selected ? 'blue' : 'gray'}
         />
@@ -203,7 +218,7 @@ function TrackedObjectItem({
     );
   }
   //if (object.type === RawObjectType.NO_DETECTION || true) {
-  const origin = new Vector3(object.x, 1, object.y);
+  const origin = new Vector3(x, 1, y);
   const target = new Vector3(object.prediction.x, 1, object.prediction.y);
   const directionVector = target.sub(origin);
 
@@ -236,8 +251,8 @@ function TrackedObjectItem({
       <UnknownObject
         onClick={onClick}
         color={selected ? 'blue' : 'grey'}
-        x={object.x}
-        y={object.y}
+        x={x}
+        y={y}
         z={object.z}
         opacity={object.ttl / 20}
       />
