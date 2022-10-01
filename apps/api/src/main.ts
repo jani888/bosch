@@ -159,6 +159,46 @@ async function main() {
     res.send('OK');
   });
 
+  app.post('/api/data/velocity', upload.single('file'), async (req, res) => {
+    const TIMESTAMP_MULTIPLIER = 100;
+    const dataset = req.body.dataset;
+    if (!dataset) {
+      res.status(400).send('Missing dataset parameter');
+      return;
+    }
+    const path = (req as any).file.path;
+    const content = readFileSync(path, 'utf-8');
+    const lines = content.split('\n');
+    const firstTimestamp = Math.floor(
+      Number(lines[1].split(',')[0]) * TIMESTAMP_MULTIPLIER
+    );
+    const collection = mongo.collection<RawMeasurement>(dataset as string);
+    lines.slice(1, lines.length - 1).forEach((line) => {
+      const [timestamp, ax, ay, _, __, vx, vy] = line.split(',');
+      // TODO: transform the row into a RawMeasurement
+      collection.updateOne(
+        {
+          timestamp: {
+            $eq:
+              Math.floor(Number(timestamp) * TIMESTAMP_MULTIPLIER) -
+              firstTimestamp,
+          },
+        },
+        {
+          $set: {
+            car: {
+              vx: denormSpeed(Number(vx)),
+              vy: denormSpeed(Number(vy)),
+              ax: denormAcceleration(Number(ax)),
+              ay: denormAcceleration(Number(ay)),
+            },
+          },
+        }
+      );
+    });
+    res.send('OK');
+  });
+
   const port = process.env.port || 3333;
   const server = app.listen(port, () => {
     console.log('Listening at http://localhost:' + port + '/api');

@@ -2,6 +2,12 @@ export interface RawMeasurement {
   consumed: boolean;
   timestamp: number;
   objects: RawObjectData[];
+  car?: {
+    vx: number;
+    vy: number;
+    ax: number;
+    ay: number;
+  };
 }
 
 export enum SensorType {

@@ -11,14 +11,22 @@ interface ObjectCountChartData {
 }
 
 export function ObjectList({
-  data,
   selected,
   onSelect,
 }: {
-  data: TrackedObject[];
   selected: string;
   onSelect: (uuid: string) => void;
 }) {
+  const [data, setData] = useState<TrackedObject[]>([]);
+  useEffect(() => {
+    const listener = () => {
+      setData(Simulation.get().trackedObjects);
+    };
+    const interval = setInterval(listener, 1000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
   const [chartData, setChartData] = useState<ObjectCountChartData[]>([]);
   const [uniqueTracking, setUniqueTracking] = useState<ObjectCountChartData[]>(
     []

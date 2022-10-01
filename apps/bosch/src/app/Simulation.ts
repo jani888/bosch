@@ -21,6 +21,32 @@ export class Simulation extends EventEmitter {
   private firstFrame = 999999999999;
   public uniqueTrackings = 0;
   private deduplicator: Deduplicator;
+  public leftBlindSpot = false;
+  public rightBlindSpot = false;
+  public carSpeed = 0;
+
+  public blindSpotDetection() {
+    const rightBlindSpot = this.trackedObjects.filter(
+      (o) => o.x < 0.8 && o.x > -0.8 && o.y < -0.1 && o.y > -4.5
+    );
+    const leftBlindSpot = this.trackedObjects.filter(
+      (o) => o.x < 0.8 && o.x > -0.8 && o.y > 0.1 && o.y < 4.5
+    );
+    if (leftBlindSpot.length > 0 && !this.leftBlindSpot) {
+      this.leftBlindSpot = true;
+      this.emit('blindSpotChange');
+    } else if (leftBlindSpot.length === 0 && this.leftBlindSpot) {
+      this.leftBlindSpot = false;
+      this.emit('blindSpotChange');
+    }
+    if (rightBlindSpot.length > 0 && !this.rightBlindSpot) {
+      this.rightBlindSpot = true;
+      this.emit('blindSpotChange');
+    } else if (rightBlindSpot.length === 0 && this.rightBlindSpot) {
+      this.rightBlindSpot = false;
+      this.emit('blindSpotChange');
+    }
+  }
 
   constructor() {
     super();
@@ -32,6 +58,10 @@ export class Simulation extends EventEmitter {
       this.instance = new Simulation();
     }
     return this.instance;
+  }
+
+  private removeTrackedObject(uuid: string): void {
+    this.trackedObjects = this.trackedObjects.filter((o) => o.uuid !== uuid);
   }
 
   public changeDataset(dataset: DatasetType) {
@@ -53,7 +83,7 @@ export class Simulation extends EventEmitter {
     this.loadChunk();
     setInterval(() => {
       this.ensureBufferIsHealthy();
-    }, 5000);
+    }, 1000);
   }
 
   private updatePredictions(timestamp: number) {
@@ -113,7 +143,7 @@ export class Simulation extends EventEmitter {
 
   private ensureBufferIsHealthy() {
     const bufferLength = this.data.filter((d) => !d.consumed).length;
-    if (bufferLength < 300 && this.bufferTimestamp < this.lastTimestamp) {
+    if (bufferLength < 3000 && this.bufferTimestamp < this.lastTimestamp) {
       this.loadChunk();
     }
   }
@@ -131,16 +161,26 @@ export class Simulation extends EventEmitter {
     const pendingMeasurements = this.data.filter(
       (item) => item.timestamp < timestamp && !item.consumed
     );
+    if (pendingMeasurements[0]?.car) {
+      this.carSpeed = Math.sqrt(
+        pendingMeasurements[0].car.vx ** 2 + pendingMeasurements[0].car.vy ** 2
+      );
+    }
     this.updatePredictions(timestamp);
     const deduped = pendingMeasurements.map(this.deduplicator.deduplicate);
     deduped.forEach((dedupRow) => {
       const newTrackedObjects: TrackedObject[] = [];
       dedupRow.forEach((measurement) => {
-        const existing = this.trackedObjects.find((trackedObject) =>
+        const existing = this.trackedObjects.filter((trackedObject) =>
           trackedObject.compare(measurement)
         );
-        if (existing) {
-          existing.addMeasurement(measurement, timestamp);
+        existing.sort((a, b) => b.measurements.length - a.measurements.length);
+        const bestMatch = existing[0];
+        if (bestMatch) {
+          bestMatch.addMeasurement(measurement, timestamp);
+          /*existing
+            .filter((e) => e.uuid !== bestMatch.uuid)
+            .forEach((e) => this.removeTrackedObject(e.uuid));*/
         } else {
           if (Math.abs(measurement.y) < 8 && (measurement.z ?? 0) < 1.25) {
             this.uniqueTrackings += 1;
@@ -152,12 +192,11 @@ export class Simulation extends EventEmitter {
       });
       this.trackedObjects = this.trackedObjects.concat(newTrackedObjects);
     });
+    this.blindSpotDetection();
     pendingMeasurements.forEach((item) => {
       item.consumed = true;
     });
-    if (this.frame % 5 === 0) {
-      this.emit('step');
-    }
+    this.emit('step');
     this.animationFrame = requestAnimationFrame(this.step);
   };
 }
