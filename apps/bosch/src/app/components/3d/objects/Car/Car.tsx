@@ -23,6 +23,7 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
   const { isPlaying, speed } = usePlayback();
   const [model, setModel] = useState<Object3D>();
   const [wheels, setWheels] = useState<Object3D[]>([]);
+  const [fixRotation, setFixRotation] = useState(90);
 
   const loader = useMemo(() => {
     const dracoLoader = new DRACOLoader();
@@ -58,6 +59,7 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
       ];
       setWheels(wheelList.filter((a) => a) as Object3D[]);
       setModel(carModel);
+      setFixRotation(0);
     });
   }, [loader]);
 
@@ -73,7 +75,11 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
       {model && (
         <group
           position={[props.x, 0, props.y]}
-          rotation={[0, ((props.heading + 90) * Math.PI) / 180, 0]}
+          rotation={[
+            0,
+            ((props.heading + 90 + fixRotation) * Math.PI) / 180,
+            0,
+          ]}
         >
           <group
             rotation={[0, Math.PI, 0]}
@@ -100,13 +106,15 @@ export const Car = ({ color = 'gray', opacity = 1, ...props }: CarProps) => {
               </group>
             )}
           </group>
-
           {!props.noSensor &&
-            sensors.map((sensor) => <primitive object={sensor.camera} />)}
+            sensors.map((sensor) => (
+              <>
+                <primitive object={sensor.camera} key={sensor.camera.uuid} />
+                <primitive object={sensor.helper} key={sensor.helper.uuid} />
+              </>
+            ))}
         </group>
       )}
-      {!props.noSensor &&
-        sensors.map((sensor, index) => <primitive object={sensor.helper} />)}
     </>
   );
 };

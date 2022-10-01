@@ -46,7 +46,7 @@ export function getCarSensors() {
   ];
 
   return sensorPositions.map((sensorPos) => {
-    const camera = new PerspectiveCamera(80, 2, 2, 10);
+    const camera = new PerspectiveCamera(60, 2, 2, 10);
     const camHelper = new CameraHelper(camera);
 
     camera.position.set(sensorPos.y, sensorPos.z, sensorPos.x);

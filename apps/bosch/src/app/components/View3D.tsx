@@ -67,8 +67,6 @@ export function View3D({
         <Car x={0} y={0} heading={0} />
 
         <group scale={[1, 1, -1]}>
-          <UnknownObject x={0} y={5} color={'red'} />
-
           {data.map((trackedObject) => (
             <TrackedObjectItem
               onClick={() => onSelect(trackedObject.uuid)}
