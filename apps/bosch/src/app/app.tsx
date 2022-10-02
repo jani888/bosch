@@ -36,6 +36,8 @@ export enum DatasetType {
   DATASET_2 = '15_12',
   DATASET_3 = '14_49',
   DATASET_4 = '15_03',
+  DATASET_5 = 'new_1',
+  DATASET_6 = 'new_2',
 }
 
 const videos = [
@@ -91,6 +93,8 @@ function DatasetSelector(props: {
         <MenuItem value={DatasetType.DATASET_2}>15:12</MenuItem>
         <MenuItem value={DatasetType.DATASET_3}>14:49</MenuItem>
         <MenuItem value={DatasetType.DATASET_4}>15:03</MenuItem>
+        <MenuItem value={DatasetType.DATASET_5}>Validation 1</MenuItem>
+        <MenuItem value={DatasetType.DATASET_6}>Validation 2</MenuItem>
       </Select>
     </FormControl>
   );
