@@ -93,7 +93,7 @@ export class Simulation extends EventEmitter {
     this.loadChunk();
     setInterval(() => {
       this.ensureBufferIsHealthy();
-    }, 1000);
+    }, 5000);
   }
 
   private updatePredictions(timestamp: number) {

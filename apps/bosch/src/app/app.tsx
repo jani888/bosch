@@ -223,7 +223,6 @@ export const App = () => {
             >
               <Logo />
               <DatasetSelector onChange={setDataset} value={dataset} />
-              <ViewModeSelector value={userView} onChange={setUserView} />
               {userView === 'object-tracking' && (
                 <ObjectTrackingOptions
                   showBlindSpots={showBlindSpots}
