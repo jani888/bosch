@@ -3,11 +3,7 @@ import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { TrackedObject } from '../TrackedObject';
 import { Vector3 } from 'three';
 
-export function Controls({
-  target,
-}: {
-  target?: TrackedObject;
-}): React.ReactElement {
+export function Controls(): React.ReactElement {
   return (
     <>
       <PerspectiveCamera far={100} position={[-4, 1.8, -3]} makeDefault />

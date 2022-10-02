@@ -1,28 +1,15 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { UnknownObject } from './3d/objects/UnknownObject';
 import { BasePlane } from './BasePlane';
 import { Lights } from './Lights';
 import { Controls } from './Controls';
-import { ACESFilmicToneMapping, sRGBEncoding, Vector3 } from 'three';
+import { ACESFilmicToneMapping, sRGBEncoding } from 'three';
 import { Environment, Sky, Stats } from '@react-three/drei';
-import { Pedestrian, PedestrianMovementState } from './3d/objects/Pedestrian';
-import { Cyclist } from './3d/objects/Cyclist';
-import { Car } from './3d/objects/Car/Car';
 import { TrackedObject } from '../TrackedObject';
-import { Truck } from './3d/objects/Truck';
-import { NormalizedObjectData, RawObjectType } from '@bosch/api-interfaces';
-import { MotorBike } from './3d/objects/MotorBike';
-import { TruckOrCar } from './3d/objects/TruckOrCar';
-import { Simulation } from '../Simulation';
-import { Road } from './3d/Road';
-
-export enum ObjectType {
-  Unknown = 'Unknown',
-  Pedestrian = 'Pedestrian',
-  Cyclist = 'Cyclist',
-  Car = 'Car',
-}
+import { NormalizedObjectData } from '@bosch/api-interfaces';
+import { useSimulation } from '../hooks/useSimulation';
+import { TrackedObjectItem } from './3d/TrackedObjectItem';
+import { Ego } from './3d/Ego';
 
 export interface HistoryItem extends NormalizedObjectData {
   timestamp: number;
@@ -30,33 +17,36 @@ export interface HistoryItem extends NormalizedObjectData {
   itemType: 'measurement' | 'prediction';
 }
 
+interface View3DProps {
+  selected: string;
+  showBlindSpots: boolean;
+  showSensors: boolean;
+
+  onSelect(id: string): void;
+}
+
 export function View3D({
   selected,
   showSensors,
   showBlindSpots,
   onSelect,
-}: {
-  selected: string;
-  showBlindSpots: boolean;
-  showSensors: boolean;
-  onSelect(id: string): void;
-}): ReactElement {
+}: View3DProps): ReactElement {
   const [data, setData] = useState<TrackedObject[]>([]);
   const [carPosition, setCarPosition] = useState({ x: 0, y: 0 });
+  const simulation = useSimulation();
   useEffect(() => {
     const listener = () => {
-      setData(Simulation.get().trackedObjects);
+      setData(simulation.trackedObjects);
       setCarPosition({
-        x: Simulation.get().carX,
-        y: Simulation.get().carY,
+        x: simulation.carX,
+        y: simulation.carY,
       });
     };
-    Simulation.get().on('step', listener);
+    simulation.on('step', listener);
     return () => {
-      Simulation.get().off('step', listener);
+      simulation.off('step', listener);
     };
   }, []);
-  const selectedObject = data.find((o) => o.uuid === selected);
   return (
     <Canvas
       style={{ height: '100%', width: '100%' }}
@@ -78,14 +68,7 @@ export function View3D({
 
         <Lights />
 
-        <Car
-          color="#E00420"
-          noSensor={!showSensors}
-          noBlindSpot={!showBlindSpots}
-          x={0}
-          y={0}
-          heading={0}
-        />
+        <Ego showSensors={showSensors} showBlindSpots={showBlindSpots} />
 
         <group scale={[1, 1, -1]}>
           {data
@@ -101,164 +84,8 @@ export function View3D({
         </group>
 
         <BasePlane carPosition={carPosition} />
-        <Controls target={selectedObject} />
+        <Controls />
       </scene>
     </Canvas>
   );
-}
-
-function History3D({
-  component,
-  history,
-}: {
-  component: ReactElement;
-  history: HistoryItem[];
-}) {
-  return (
-    <>
-      {history.map((historyItem, index) => (
-        <group key={index} position={[historyItem.x, 0, historyItem.y]}>
-          {React.cloneElement(component, {
-            color:
-              historyItem.itemType === 'measurement' ? '#E00420' : '#40A9FF',
-            opacity: (index + 1) / (history.length + 1) + 0.5,
-          })}
-        </group>
-      ))}
-    </>
-  );
-}
-
-function TrackedObjectItem({
-  object,
-  selected,
-  onClick,
-}: {
-  object: TrackedObject;
-  selected: boolean;
-  onClick?: () => void;
-}) {
-  const x = object.x;
-  const y = object.y;
-  const history = object.history.filter(
-    (h, index) =>
-      index % Math.floor(object.history.length / 20) === 0 ||
-      h.itemType === 'measurement'
-  );
-
-  if (object.type === RawObjectType.BICYCLE) {
-    return (
-      <>
-        {selected && (
-          <History3D
-            component={<Cyclist heading={360} x={0} y={0} color="#A00420" />}
-            history={history}
-          />
-        )}
-        <Cyclist
-          x={x}
-          y={y}
-          heading={360}
-          color={selected ? '#A00420' : '#737A80'}
-        />
-      </>
-    );
-  }
-  if (object.type === RawObjectType.CAR) {
-    return (
-      <>
-        {selected && (
-          <History3D
-            component={<UnknownObject x={0} y={0} color="#A00420" />}
-            history={history}
-          />
-        )}
-        <Car
-          x={x}
-          y={y}
-          heading={360}
-          noSensor
-          noBlindSpot
-          color={selected ? '#A00420' : '#737A80'}
-        />
-      </>
-    );
-  }
-  if (object.type === RawObjectType.PEDESTRIAN) {
-    return <></>;
-  }
-
-  if (object.type === RawObjectType.TRUCK) {
-    return (
-      <>
-        {selected && (
-          <History3D
-            component={<UnknownObject x={0} y={0} color="#A00420" />}
-            history={history}
-          />
-        )}
-        <Truck
-          x={x}
-          y={y}
-          heading={360}
-          color={selected ? '#A00420' : '#737A80'}
-        />
-      </>
-    );
-  }
-  if (object.type === RawObjectType.MOTORBIKE) {
-    return (
-      <>
-        <MotorBike
-          x={x}
-          y={y}
-          heading={360}
-          color={selected ? '#A00420' : '#737A80'}
-        />
-      </>
-    );
-  }
-  //if (object.type === RawObjectType.NO_DETECTION || true) {
-  const origin = new Vector3(x, 1, y);
-  const target = new Vector3(object.prediction.x, 1, object.prediction.y);
-  const directionVector = target.sub(origin);
-
-  return (
-    <>
-      {/*<UnknownObject
-          x={object.prediction.x}
-          y={object.prediction.y}
-          color="red"
-        />
-        <arrowHelper
-          args={[
-            directionVector.normalize(),
-            origin,
-            Math.sqrt(
-              Math.pow(object.x - object.prediction.x, 2) +
-                Math.pow(object.y - object.prediction.y, 2)
-            ),
-            0xff00ff,
-            0.5,
-            0.6,
-          ]}
-        />*/}
-      {selected && (
-        <History3D
-          component={<UnknownObject x={0} y={0} color="#A00420" />}
-          history={history}
-        />
-      )}
-      <UnknownObject
-        onClick={onClick}
-        color={selected ? '#A00420' : '#737A80'}
-        x={x}
-        y={y}
-        z={object.z}
-        opacity={object.ttl / 20}
-      />
-    </>
-  );
-  /*}
-  return null;*/
 }

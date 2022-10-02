@@ -22,11 +22,8 @@ export function PlaybackControl({
   onTogglePlayback,
   onSpeedChange,
 }: {
-  speed: number;
-  isPlaying: boolean;
   onTogglePlayback: () => void;
   onSpeedChange: (speed: number) => void;
-  length: number;
 }) {
   const [current, setCurrent] = useState<number>(0);
   const [buffer, setBuffer] = useState<number>(0);
