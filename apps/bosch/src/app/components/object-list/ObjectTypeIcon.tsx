@@ -1,5 +1,3 @@
-import { ObjectType } from '../View3D';
-import { Box } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
 import AccessibilityIcon from '@mui/icons-material/Accessibility';
 import DirectionsBikeIcon from '@mui/icons-material/DirectionsBike';
